@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Dashboard - Money Manager{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <h1>Dashboard Financiero</h1>
+    
+    <!-- Resumen financiero -->
+    <div class="financial-summary">
+        <div class="summary-card income">
+            <h3>Ingresos Totales</h3>
+            <p class="amount">{{ ingresos_totales }}</p>
+        </div>
+        
+        <div class="summary-card expenses">
+            <h3>Gastos Totales</h3>
+            <p class="amount">{{ gastos_totales }}</p>
+        </div>
+        
+        <div class="summary-card balance">
+            <h3>Balance</h3>
+            <p class="amount {% if balance >= 0 %}positive{% else %}negative{% endif %}">
+                {{ balance }}
+            </p>
+        </div>
+    </div>
+    
+    <!-- Gráfico de gastos por categoría -->
+    <div class="chart-container">
+        <h2>Gastos por Categoría</h2>
+        <canvas id="gastosChart" width="400" height="200"></canvas>
+    </div>
+    
+    <!-- Últimas transacciones -->
+    <div class="recent-transactions">
+        <h2>Últimas Transacciones</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Descripción</th>
+                    <th>Categoría</th>
+                    <th>Monto</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in transacciones %}
+                <tr class="{{ t.tipo|lower }}">
+                    <td>{{ t.fecha|date:"d/m/Y" }}</td>
+                    <td>{{ t.descripcion|default:"Sin descripción" }}</td>
+                    <td>{{ t.categoria.nombre|default:"Sin categoría" }}</td>
+                    <td class="amount">{{ t.monto }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4">No hay transacciones registradas</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Alertas de presupuestos -->
+    {% if alertas %}
+    <div class="alerts-container">
+        <h2>Alertas de Presupuesto</h2>
+        {% for alerta in alertas %}
+        <div class="alert">
+            <p>
+                <strong>{{ alerta.categoria }}:</strong> 
+                Has gastado {{ alerta.gasto_actual }} de {{ alerta.limite }} 
+                ({{ alerta.gasto_actual|floatformat:2|default:0 }}% del límite)
+            </p>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extrajs %}
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Datos para el gráfico -->
+{{ categorias_gastos|json_script:"categorias-gastos-data" }}
+
+<script>
+    // Configuración del gráfico
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('gastosChart').getContext('2d');
+        const data = JSON.parse(document.getElementById('categorias-gastos-data').textContent);
+        
+        // Preparar datos para el gráfico
+        const labels = data.map(item => item.categoria__nombre);
+        const values = data.map(item => item.total);
+        
+        // Colores para el gráfico
+        const backgroundColors = [
+            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
+            '#FF9F40', '#8AC249', '#EA526F', '#23B5D3', '#279AF1'
+        ];
+        
+        // Crear el gráfico
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: values,
+                    backgroundColor: backgroundColors.slice(0, labels.length),
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Distribución de Gastos'
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %} 

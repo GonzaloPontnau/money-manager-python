@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Iniciar Sesión - Money Manager{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-form">
+        <h1>Iniciar Sesión</h1>
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="id_username">Usuario:</label>
+                {{ form.username }}
+                {% if form.username.errors %}
+                    <div class="form-error">{{ form.username.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="id_password">Contraseña:</label>
+                {{ form.password }}
+                {% if form.password.errors %}
+                    <div class="form-error">{{ form.password.errors }}</div>
+                {% endif %}
+            </div>
+            
+            {% if form.non_field_errors %}
+                <div class="form-error">
+                    {% for error in form.non_field_errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            <input type="hidden" name="next" value="{{ next }}" />
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+            </div>
+            
+            <div class="form-footer">
+                <p>¿No tienes una cuenta? <a href="#">Regístrate</a></p>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extracss %}
+<style>
+    .auth-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 70vh;
+    }
+    
+    .auth-form {
+        background-color: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        padding: 30px;
+        width: 100%;
+        max-width: 400px;
+    }
+    
+    .auth-form h1 {
+        margin-bottom: 20px;
+        color: var(--dark-color);
+        text-align: center;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+    
+    .form-group input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: var(--border-radius);
+        font-size: 16px;
+    }
+    
+    .form-group input:focus {
+        border-color: var(--primary-color);
+        outline: none;
+    }
+    
+    .form-error {
+        color: var(--danger-color);
+        font-size: 14px;
+        margin-top: 5px;
+    }
+    
+    .form-actions {
+        margin-top: 20px;
+    }
+    
+    .btn {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: var(--border-radius);
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s;
+    }
+    
+    .btn:hover {
+        background-color: #2980b9;
+    }
+    
+    .btn-primary {
+        width: 100%;
+    }
+    
+    .form-footer {
+        margin-top: 20px;
+        text-align: center;
+    }
+    
+    .form-footer a {
+        color: var(--primary-color);
+        text-decoration: none;
+    }
+    
+    .form-footer a:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %} 
