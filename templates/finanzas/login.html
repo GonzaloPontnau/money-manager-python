@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{# {% load crispy_forms_tags %} #}
 
 {% block title %}Iniciar Sesión - Money Manager{% endblock %}
 
@@ -11,29 +12,8 @@
         <form method="post">
             {% csrf_token %}
             
-            <div class="form-group">
-                <label for="id_username">Usuario:</label>
-                {{ form.username }}
-                {% if form.username.errors %}
-                    <div class="form-error">{{ form.username.errors }}</div>
-                {% endif %}
-            </div>
-            
-            <div class="form-group">
-                <label for="id_password">Contraseña:</label>
-                {{ form.password }}
-                {% if form.password.errors %}
-                    <div class="form-error">{{ form.password.errors }}</div>
-                {% endif %}
-            </div>
-            
-            {% if form.non_field_errors %}
-                <div class="form-error">
-                    {% for error in form.non_field_errors %}
-                        {{ error }}
-                    {% endfor %}
-                </div>
-            {% endif %}
+            {# {{ form|crispy }} #}
+            {{ form.as_p }}
             
             <input type="hidden" name="next" value="{{ next }}" />
             
@@ -42,7 +22,7 @@
             </div>
             
             <div class="form-footer">
-                <p>¿No tienes una cuenta? <a href="#">Regístrate</a></p>
+                <p>¿No tienes una cuenta? <a href="{% url 'finanzas:register' %}">Regístrate</a></p>
             </div>
         </form>
     </div>
@@ -73,33 +53,22 @@
         text-align: center;
     }
     
-    .form-group {
-        margin-bottom: 20px;
+    /* Estilo para los párrafos generados por form.as_p */
+    .auth-form p {
+        margin-bottom: 15px;
     }
     
-    .form-group label {
+    .auth-form label {
         display: block;
         margin-bottom: 5px;
         font-weight: bold;
     }
     
-    .form-group input {
+    .auth-form input {
         width: 100%;
         padding: 10px;
         border: 1px solid #ddd;
         border-radius: var(--border-radius);
-        font-size: 16px;
-    }
-    
-    .form-group input:focus {
-        border-color: var(--primary-color);
-        outline: none;
-    }
-    
-    .form-error {
-        color: var(--danger-color);
-        font-size: 14px;
-        margin-top: 5px;
     }
     
     .form-actions {
@@ -138,6 +107,15 @@
     
     .form-footer a:hover {
         text-decoration: underline;
+    }
+    
+    /* Estilos para mensajes de error */
+    .errorlist {
+        color: #e74c3c;
+        list-style-type: none;
+        padding: 0;
+        margin-top: 5px;
+        font-size: 14px;
     }
 </style>
 {% endblock %} 

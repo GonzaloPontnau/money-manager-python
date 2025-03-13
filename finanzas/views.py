@@ -1,7 +1,27 @@
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.urls import reverse_lazy
+from django.contrib import messages
+from django.contrib.auth import login, authenticate
 from .models import Transaccion, Presupuesto
+from .forms import RegisterForm
+
+def register(request):
+    """Vista para registrar nuevos usuarios"""
+    if request.method == 'POST':
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            # Iniciar sesión automáticamente después del registro
+            raw_password = form.cleaned_data.get('password1')
+            user = authenticate(username=user.username, password=raw_password)
+            login(request, user)
+            messages.success(request, f'¡Cuenta creada con éxito! Bienvenido/a, {user.first_name}.')
+            return redirect('finanzas:dashboard')
+    else:
+        form = RegisterForm()
+    return render(request, 'finanzas/register.html', {'form': form})
 
 @login_required
 def dashboard(request):

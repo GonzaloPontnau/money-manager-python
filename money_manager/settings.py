@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'finanzas.apps.FinanzasConfig',  # Nuestra aplicación
-    'crispy_forms',
+    # 'crispy_forms',  # Para formularios con mejor aspecto
+    # 'crispy_bootstrap4',  # Bootstrap 4 para crispy-forms
 ]
 
 MIDDLEWARE = [
@@ -126,9 +127,9 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Crispy Forms - Usando plantillas personalizadas con HTML/CSS en lugar de Bootstrap
-CRISPY_TEMPLATE_PACK = 'uni_form'  # Alternativa más básica que permite personalización con HTML/CSS
-CRISPY_CLASS_CONVERTERS = {'textinput': 'custom-input'}  # Clases CSS personalizadas
+# Crispy Forms (comentado temporalmente)
+# CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap4"
+# CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% load static %}
+{# {% load crispy_forms_tags %} #}
+
+{% block title %}Registro de Usuario - Money Manager{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-form register-form">
+        <h1>Crear Cuenta</h1>
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            {# {{ form|crispy }} #}
+            {{ form.as_p }}
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Crear Cuenta</button>
+            </div>
+            
+            <div class="form-footer">
+                <p>¿Ya tienes una cuenta? <a href="{% url 'finanzas:login' %}">Iniciar Sesión</a></p>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extracss %}
+<style>
+    .auth-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 70vh;
+        margin: 30px 0;
+    }
+    
+    .auth-form {
+        background-color: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        padding: 30px;
+        width: 100%;
+        max-width: 500px;
+    }
+    
+    .register-form {
+        max-width: 600px;
+    }
+    
+    .auth-form h1 {
+        margin-bottom: 20px;
+        color: var(--dark-color);
+        text-align: center;
+    }
+    
+    /* Estilo para los párrafos generados por form.as_p */
+    .auth-form p {
+        margin-bottom: 15px;
+    }
+    
+    .auth-form label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+    
+    .auth-form input, .auth-form select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: var(--border-radius);
+    }
+    
+    .form-actions {
+        margin-top: 20px;
+    }
+    
+    .btn {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: var(--border-radius);
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s;
+    }
+    
+    .btn:hover {
+        background-color: #2980b9;
+    }
+    
+    .btn-primary {
+        width: 100%;
+    }
+    
+    .form-footer {
+        margin-top: 20px;
+        text-align: center;
+    }
+    
+    .form-footer a {
+        color: var(--primary-color);
+        text-decoration: none;
+    }
+    
+    .form-footer a:hover {
+        text-decoration: underline;
+    }
+    
+    /* Estilos para mensajes de error */
+    .errorlist {
+        color: #e74c3c;
+        list-style-type: none;
+        padding: 0;
+        margin-top: 5px;
+        font-size: 14px;
+    }
+</style>
+{% endblock %} 
