@@ -1,0 +1,29 @@
+{% extends "admin/index.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="dashboard-summary">
+    <h2>Resumen financiero</h2>
+    
+    <div class="dashboard-cards">
+        <div class="card">
+            <h3>Ingresos totales</h3>
+            <p class="amount positive">{{ ingresos_totales }}</p>
+        </div>
+        
+        <div class="card">
+            <h3>Gastos totales</h3>
+            <p class="amount negative">{{ gastos_totales }}</p>
+        </div>
+        
+        <div class="card">
+            <h3>Balance actual</h3>
+            <p class="amount {% if balance >= 0 %}positive{% else %}negative{% endif %}">
+                {{ balance }}
+            </p>
+        </div>
+    </div>
+</div>
+
+{{ block.super }}
+{% endblock %} 
