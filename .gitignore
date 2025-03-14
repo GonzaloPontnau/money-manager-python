@@ -64,3 +64,14 @@ coverage.xml
 *.cover
 .hypothesis/
 
+# Archivos de pruebas
+*.pyc
+test_*.py
+add_test_data.py
+
+# Archivos de configuración
+*.ini
+*.conf
+*.yaml
+*.yml
+settings.py
