@@ -27,10 +27,10 @@
         </div>
     </div>
     
-    <!-- Gráfico de gastos por categoría -->
+    <!-- Gráfico de ingresos vs. gastos -->
     <div class="chart-container">
-        <h2>Gastos por Categoría</h2>
-        <canvas id="gastosChart" width="400" height="200"></canvas>
+        <h2>Ingresos vs Gastos</h2>
+        <canvas id="balanceChart" width="400" height="200"></canvas>
     </div>
     
     <!-- Últimas transacciones -->
@@ -41,7 +41,7 @@
                 <tr>
                     <th>Fecha</th>
                     <th>Descripción</th>
-                    <th>Categoría</th>
+                    <th>Tipo</th>
                     <th>Monto</th>
                 </tr>
             </thead>
@@ -50,7 +50,7 @@
                 <tr class="{{ t.tipo|lower }}">
                     <td>{{ t.fecha|date:"d/m/Y" }}</td>
                     <td>{{ t.descripcion|default:"Sin descripción" }}</td>
-                    <td>{{ t.categoria.nombre|default:"Sin categoría" }}</td>
+                    <td>{% if t.tipo == 'INGRESO' %}Ingreso{% else %}Gasto{% endif %}</td>
                     <td class="amount">{{ t.monto }}</td>
                 </tr>
                 {% empty %}
@@ -61,22 +61,6 @@
             </tbody>
         </table>
     </div>
-    
-    <!-- Alertas de presupuestos -->
-    {% if alertas %}
-    <div class="alerts-container">
-        <h2>Alertas de Presupuesto</h2>
-        {% for alerta in alertas %}
-        <div class="alert">
-            <p>
-                <strong>{{ alerta.categoria }}:</strong> 
-                Has gastado {{ alerta.gasto_actual }} de {{ alerta.limite }} 
-                ({{ alerta.gasto_actual|floatformat:2|default:0 }}% del límite)
-            </p>
-        </div>
-        {% endfor %}
-    </div>
-    {% endif %}
 </div>
 {% endblock %}
 
@@ -85,48 +69,53 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <!-- Datos para el gráfico -->
-{{ categorias_gastos|json_script:"categorias-gastos-data" }}
-
 <script>
     // Configuración del gráfico
     document.addEventListener('DOMContentLoaded', function() {
-        const ctx = document.getElementById('gastosChart').getContext('2d');
-        const data = JSON.parse(document.getElementById('categorias-gastos-data').textContent);
+        const ctx = document.getElementById('balanceChart').getContext('2d');
         
-        // Preparar datos para el gráfico
-        const labels = data.map(item => item.categoria__nombre);
-        const values = data.map(item => item.total);
-        
-        // Colores para el gráfico
-        const backgroundColors = [
-            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
-            '#FF9F40', '#8AC249', '#EA526F', '#23B5D3', '#279AF1'
-        ];
+        // Datos para el gráfico (ingresos vs gastos)
+        const ingresos = {{ ingresos_totales|floatformat:2 }};
+        const gastos = {{ gastos_totales|floatformat:2 }};
         
         // Crear el gráfico
         new Chart(ctx, {
-            type: 'pie',
+            type: 'bar',
             data: {
-                labels: labels,
+                labels: ['Ingresos', 'Gastos'],
                 datasets: [{
-                    data: values,
-                    backgroundColor: backgroundColors.slice(0, labels.length),
+                    label: 'Monto',
+                    data: [ingresos, gastos],
+                    backgroundColor: [
+                        'rgba(0, 184, 148, 0.7)',  // Verde para ingresos
+                        'rgba(255, 118, 117, 0.7)' // Rojo para gastos
+                    ],
+                    borderColor: [
+                        'rgba(0, 184, 148, 1)',
+                        'rgba(255, 118, 117, 1)'
+                    ],
                     borderWidth: 1
                 }]
             },
             options: {
                 responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                },
                 plugins: {
                     legend: {
-                        position: 'right',
+                        display: false
                     },
                     title: {
                         display: true,
-                        text: 'Distribución de Gastos'
+                        text: 'Comparativa de Ingresos y Gastos',
+                        color: '#E2E2E2'
                     }
                 }
             }
         });
     });
 </script>
-{% endblock %} 
+{% endblock %}

@@ -1,0 +1,276 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Transferencias - Money Manager{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <h1>Mis Transferencias</h1>
+    
+    <div class="actions-toolbar">
+        <a href="{% url 'finanzas:nueva_transferencia' %}" class="btn">
+            <i class="fas fa-exchange-alt mr-2"></i>Nueva Transferencia
+        </a>
+    </div>
+    
+    <!-- Pestañas para navegar entre distintos tipos de transferencias -->
+    <div class="transactions-tabs">
+        <ul class="nav nav-tabs" id="transactionsTabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="all-tab" data-toggle="tab" href="#all" role="tab">
+                    Todas <span class="badge">{{ transferencias.count }}</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="sent-tab" data-toggle="tab" href="#sent" role="tab">
+                    Enviadas <span class="badge">{{ enviadas.count }}</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="received-tab" data-toggle="tab" href="#received" role="tab">
+                    Recibidas <span class="badge">{{ recibidas.count }}</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+    
+    <!-- Contenido de las pestañas -->
+    <div class="tab-content" id="transactionsTabsContent">
+        <!-- Todas las transferencias -->
+        <div class="tab-pane fade show active" id="all" role="tabpanel">
+            <div class="recent-transactions">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Referencia</th>
+                            <th>Fecha</th>
+                            <th>De/Para</th>
+                            <th>Concepto</th>
+                            <th>Monto</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for t in transferencias %}
+                        <tr class="{% if t.emisor == request.user %}gasto{% else %}ingreso{% endif %}">
+                            <td>{{ t.referencia }}</td>
+                            <td>{{ t.fecha_creacion|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                {% if t.emisor == request.user %}
+                                    <i class="fas fa-arrow-right mr-1"></i> {{ t.receptor.username }}
+                                {% else %}
+                                    <i class="fas fa-arrow-left mr-1"></i> {{ t.emisor.username }}
+                                {% endif %}
+                            </td>
+                            <td>{{ t.concepto|default:"Sin concepto" }}</td>
+                            <td class="amount">{{ t.monto }}</td>
+                            <td>
+                                {% if t.estado == 'completed' %}
+                                    <span class="badge badge-success">Completada</span>
+                                {% elif t.estado == 'pending' %}
+                                    <span class="badge badge-warning">Pendiente</span>
+                                {% elif t.estado == 'failed' %}
+                                    <span class="badge badge-danger">Fallida</span>
+                                {% elif t.estado == 'cancelled' %}
+                                    <span class="badge badge-secondary">Cancelada</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'finanzas:detalle_transferencia' t.uuid %}" class="btn-sm">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7">No hay transferencias registradas</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Transferencias enviadas -->
+        <div class="tab-pane fade" id="sent" role="tabpanel">
+            <div class="recent-transactions">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Referencia</th>
+                            <th>Fecha</th>
+                            <th>Para</th>
+                            <th>Concepto</th>
+                            <th>Monto</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for t in enviadas %}
+                        <tr class="gasto">
+                            <td>{{ t.referencia }}</td>
+                            <td>{{ t.fecha_creacion|date:"d/m/Y H:i" }}</td>
+                            <td>{{ t.receptor.username }}</td>
+                            <td>{{ t.concepto|default:"Sin concepto" }}</td>
+                            <td class="amount">{{ t.monto }}</td>
+                            <td>
+                                {% if t.estado == 'completed' %}
+                                    <span class="badge badge-success">Completada</span>
+                                {% elif t.estado == 'pending' %}
+                                    <span class="badge badge-warning">Pendiente</span>
+                                {% elif t.estado == 'failed' %}
+                                    <span class="badge badge-danger">Fallida</span>
+                                {% elif t.estado == 'cancelled' %}
+                                    <span class="badge badge-secondary">Cancelada</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'finanzas:detalle_transferencia' t.uuid %}" class="btn-sm">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7">No hay transferencias enviadas</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Transferencias recibidas -->
+        <div class="tab-pane fade" id="received" role="tabpanel">
+            <div class="recent-transactions">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Referencia</th>
+                            <th>Fecha</th>
+                            <th>De</th>
+                            <th>Concepto</th>
+                            <th>Monto</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for t in recibidas %}
+                        <tr class="ingreso">
+                            <td>{{ t.referencia }}</td>
+                            <td>{{ t.fecha_creacion|date:"d/m/Y H:i" }}</td>
+                            <td>{{ t.emisor.username }}</td>
+                            <td>{{ t.concepto|default:"Sin concepto" }}</td>
+                            <td class="amount">{{ t.monto }}</td>
+                            <td>
+                                {% if t.estado == 'completed' %}
+                                    <span class="badge badge-success">Completada</span>
+                                {% elif t.estado == 'pending' %}
+                                    <span class="badge badge-warning">Pendiente</span>
+                                {% elif t.estado == 'failed' %}
+                                    <span class="badge badge-danger">Fallida</span>
+                                {% elif t.estado == 'cancelled' %}
+                                    <span class="badge badge-secondary">Cancelada</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'finanzas:detalle_transferencia' t.uuid %}" class="btn-sm">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7">No hay transferencias recibidas</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extracss %}
+<style>
+    .actions-toolbar {
+        margin-bottom: 25px;
+        display: flex;
+        justify-content: flex-end;
+    }
+    
+    .nav-tabs {
+        border-bottom: 1px solid var(--border-color);
+        margin-bottom: 25px;
+    }
+    
+    .nav-tabs .nav-link {
+        color: var(--text-muted);
+        border: none;
+        border-bottom: 3px solid transparent;
+        padding: 10px 20px;
+        font-weight: 500;
+        background-color: transparent;
+    }
+    
+    .nav-tabs .nav-link:hover {
+        color: var(--text-color);
+        border-color: transparent;
+    }
+    
+    .nav-tabs .nav-link.active {
+        color: var(--primary-light);
+        background-color: transparent;
+        border-color: var(--primary-light);
+    }
+    
+    .badge {
+        background-color: var(--light-dark);
+        color: var(--text-muted);
+        padding: 3px 8px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        margin-left: 5px;
+    }
+    
+    .badge-success {
+        background-color: rgba(0, 184, 148, 0.2);
+        color: var(--secondary-color);
+    }
+    
+    .badge-warning {
+        background-color: rgba(253, 203, 110, 0.2);
+        color: var(--warning-color);
+    }
+    
+    .badge-danger {
+        background-color: rgba(255, 118, 117, 0.2);
+        color: var(--danger-color);
+    }
+    
+    .badge-secondary {
+        background-color: rgba(178, 190, 195, 0.2);
+        color: #b2bec3;
+    }
+    
+    .btn-sm {
+        display: inline-block;
+        padding: 5px 10px;
+        background-color: var(--light-dark);
+        color: var(--text-color);
+        border-radius: var(--border-radius);
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+    
+    .btn-sm:hover {
+        background-color: var(--primary-color);
+        color: white;
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}

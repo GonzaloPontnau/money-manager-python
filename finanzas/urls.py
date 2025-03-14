@@ -1,16 +1,27 @@
 from django.urls import path
-from django.contrib.auth import views as auth_views
-from . import views
+from finanzas.views.dashboard_views import dashboard_view
+from finanzas.views.auth_views import login_view, register_view, logout_view
+from finanzas.views.transferencia_views import (
+    lista_transferencias, 
+    nueva_transferencia,
+    detalle_transferencia,
+    cancelar_transferencia
+)
 
 app_name = 'finanzas'
 
 urlpatterns = [
-    path('', views.dashboard, name='dashboard'),
+    # Vistas de autenticación
+    path('login/', login_view, name='login'),
+    path('register/', register_view, name='register'),
+    path('logout/', logout_view, name='logout'),
     
-    # URLs de autenticación
-    path('login/', auth_views.LoginView.as_view(template_name='finanzas/login.html'), name='login'),
-    path('logout/', auth_views.LogoutView.as_view(next_page='finanzas:dashboard'), name='logout'),
-    path('register/', views.register, name='register'),
+    # Dashboard principal
+    path('', dashboard_view, name='dashboard'),
     
-    # Aquí añadiremos más URLs en el futuro
-] 
+    # Transferencias
+    path('transferencias/', lista_transferencias, name='lista_transferencias'),
+    path('transferencias/nueva/', nueva_transferencia, name='nueva_transferencia'),
+    path('transferencias/<uuid:uuid>/', detalle_transferencia, name='detalle_transferencia'),
+    path('transferencias/<uuid:uuid>/cancelar/', cancelar_transferencia, name='cancelar_transferencia'),
+]

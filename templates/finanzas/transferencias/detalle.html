@@ -1,0 +1,325 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Detalle de Transferencia - Money Manager{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <h1>Detalle de Transferencia</h1>
+    
+    <div class="actions-toolbar">
+        <a href="{% url 'finanzas:lista_transferencias' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left mr-2"></i> Volver a transferencias
+        </a>
+        
+        <!-- Mostrar botón de cancelar solo si es emisor y la transferencia está pendiente -->
+        {% if es_emisor and transferencia.estado == 'pending' %}
+        <form method="post" action="{% url 'finanzas:cancelar_transferencia' transferencia.uuid %}" class="ml-2">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger" onclick="return confirm('¿Estás seguro de que quieres cancelar esta transferencia?');">
+                <i class="fas fa-times-circle mr-2"></i>Cancelar transferencia
+            </button>
+        </form>
+        {% endif %}
+    </div>
+    
+    <div class="transferencia-detail">
+        <!-- Encabezado de estado con color según el estado -->
+        <div class="estado-header {{ transferencia.estado }}">
+            <span class="estado-badge">
+                {% if transferencia.estado == 'completed' %}
+                    <i class="fas fa-check-circle mr-2"></i>Transferencia Completada
+                {% elif transferencia.estado == 'pending' %}
+                    <i class="fas fa-clock mr-2"></i>Transferencia Pendiente
+                {% elif transferencia.estado == 'failed' %}
+                    <i class="fas fa-times-circle mr-2"></i>Transferencia Fallida
+                {% elif transferencia.estado == 'cancelled' %}
+                    <i class="fas fa-ban mr-2"></i>Transferencia Cancelada
+                {% endif %}
+            </span>
+        </div>
+        
+        <!-- Información principal de la transferencia -->
+        <div class="transferencia-info">
+            <div class="info-section monto-section 
+                 {% if es_emisor %}gasto{% else %}ingreso{% endif %}">
+                <span class="label">Monto:</span>
+                <span class="valor monto">
+                    {% if es_emisor %}-{% else %}+{% endif %}{{ transferencia.monto }}
+                </span>
+            </div>
+            
+            <div class="info-section">
+                <span class="label">Referencia:</span>
+                <span class="valor">{{ transferencia.referencia }}</span>
+            </div>
+            
+            <div class="info-section">
+                <span class="label">Concepto:</span>
+                <span class="valor">{{ transferencia.concepto|default:"Sin concepto" }}</span>
+            </div>
+            
+            <div class="transfer-participants">
+                <div class="emisor">
+                    <div class="user-icon">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div class="user-info">
+                        <span class="user-label">De:</span>
+                        <span class="username">{{ transferencia.emisor.username }}</span>
+                        {% if es_emisor %}<span class="self-tag">Tú</span>{% endif %}
+                    </div>
+                </div>
+                
+                <div class="transfer-arrow">
+                    <i class="fas fa-long-arrow-alt-right"></i>
+                </div>
+                
+                <div class="receptor">
+                    <div class="user-icon">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div class="user-info">
+                        <span class="user-label">Para:</span>
+                        <span class="username">{{ transferencia.receptor.username }}</span>
+                        {% if not es_emisor %}<span class="self-tag">Tú</span>{% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Fechas y tracking -->
+        <div class="transferencia-metadata">
+            <div class="info-section">
+                <span class="label">ID de Transferencia:</span>
+                <span class="valor">{{ transferencia.uuid }}</span>
+            </div>
+            
+            <div class="info-section">
+                <span class="label">Fecha de creación:</span>
+                <span class="valor">{{ transferencia.fecha_creacion|date:"d/m/Y H:i:s" }}</span>
+            </div>
+            
+            {% if transferencia.fecha_procesamiento %}
+            <div class="info-section">
+                <span class="label">Fecha de procesamiento:</span>
+                <span class="valor">{{ transferencia.fecha_procesamiento|date:"d/m/Y H:i:s" }}</span>
+            </div>
+            {% endif %}
+            
+            {% if transferencia.mensaje_respuesta %}
+            <div class="info-section">
+                <span class="label">Mensaje del sistema:</span>
+                <span class="valor mensaje-sistema">{{ transferencia.mensaje_respuesta }}</span>
+            </div>
+            {% endif %}
+        </div>
+        
+        {% if transferencia.estado == 'completed' %}
+        <div class="success-message">
+            <i class="fas fa-check-circle mr-2"></i>
+            La transferencia se completó correctamente.
+        </div>
+        {% elif transferencia.estado == 'failed' %}
+        <div class="error-message">
+            <i class="fas fa-exclamation-circle mr-2"></i>
+            La transferencia no pudo completarse.
+        </div>
+        {% elif transferencia.estado == 'cancelled' %}
+        <div class="warning-message">
+            <i class="fas fa-exclamation-triangle mr-2"></i>
+            La transferencia fue cancelada.
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extracss %}
+<style>
+    .actions-toolbar {
+        margin-bottom: 25px;
+        display: flex;
+        justify-content: space-between;
+    }
+    
+    .transferencia-detail {
+        background-color: var(--medium-dark);
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        border: 1px solid var(--border-color);
+        overflow: hidden;
+    }
+    
+    .estado-header {
+        padding: 15px 20px;
+        font-weight: 500;
+        font-size: 1.1rem;
+        text-align: center;
+    }
+    
+    .estado-header.completed {
+        background-color: rgba(0, 184, 148, 0.1);
+        border-bottom: 1px solid var(--secondary-color);
+    }
+    
+    .estado-header.pending {
+        background-color: rgba(253, 203, 110, 0.1);
+        border-bottom: 1px solid var(--warning-color);
+    }
+    
+    .estado-header.failed {
+        background-color: rgba(255, 118, 117, 0.1);
+        border-bottom: 1px solid var(--danger-color);
+    }
+    
+    .estado-header.cancelled {
+        background-color: rgba(178, 190, 195, 0.1);
+        border-bottom: 1px solid #b2bec3;
+    }
+    
+    .transferencia-info {
+        padding: 25px;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .info-section {
+        margin-bottom: 15px;
+        display: flex;
+        align-items: flex-start;
+    }
+    
+    .info-section .label {
+        min-width: 180px;
+        font-weight: 500;
+        color: var(--text-muted);
+    }
+    
+    .info-section .valor {
+        flex-grow: 1;
+        color: var(--text-color);
+    }
+    
+    .monto-section {
+        margin-bottom: 25px;
+    }
+    
+    .monto-section .valor.monto {
+        font-size: 2rem;
+        font-weight: bold;
+    }
+    
+    .ingreso .valor.monto {
+        color: var(--secondary-color);
+    }
+    
+    .gasto .valor.monto {
+        color: var(--danger-color);
+    }
+    
+    .transfer-participants {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 30px;
+        background-color: rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        border-radius: var(--border-radius);
+    }
+    
+    .emisor, .receptor {
+        display: flex;
+        align-items: center;
+        flex: 1;
+    }
+    
+    .user-icon {
+        font-size: 2.5rem;
+        margin-right: 15px;
+        color: var(--text-muted);
+    }
+    
+    .user-info {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .transfer-arrow {
+        font-size: 2rem;
+        color: var(--text-muted);
+        margin: 0 20px;
+    }
+    
+    .user-label {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+    }
+    
+    .username {
+        font-size: 1.2rem;
+        font-weight: 500;
+    }
+    
+    .self-tag {
+        display: inline-block;
+        background-color: var(--primary-color);
+        color: white;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 0.7rem;
+        margin-left: 5px;
+        vertical-align: middle;
+    }
+    
+    .transferencia-metadata {
+        padding: 20px 25px;
+        background-color: rgba(0, 0, 0, 0.1);
+    }
+    
+    .mensaje-sistema {
+        padding: 8px 12px;
+        background-color: rgba(0, 0, 0, 0.2);
+        border-radius: var(--border-radius);
+        display: block;
+        margin-top: 5px;
+    }
+    
+    .success-message, .error-message, .warning-message {
+        padding: 15px 25px;
+        font-weight: 500;
+        text-align: center;
+    }
+    
+    .success-message {
+        background-color: rgba(0, 184, 148, 0.1);
+        color: var(--secondary-color);
+    }
+    
+    .error-message {
+        background-color: rgba(255, 118, 117, 0.1);
+        color: var(--danger-color);
+    }
+    
+    .warning-message {
+        background-color: rgba(253, 203, 110, 0.1);
+        color: var(--warning-color);
+    }
+    
+    .btn-danger {
+        background: linear-gradient(135deg, var(--danger-color), #ff9e9d);
+    }
+    
+    .btn-danger:hover {
+        background: linear-gradient(135deg, #ff9e9d, var(--danger-color));
+    }
+    
+    .btn-secondary {
+        background: var(--light-dark);
+        color: var(--text-color);
+    }
+    
+    .btn-secondary:hover {
+        background: var(--border-color);
+    }
+</style>
+{% endblock %}

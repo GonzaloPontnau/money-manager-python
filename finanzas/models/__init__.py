@@ -1,6 +1,7 @@
 from .categoria import Categoria
 from .transaccion import Transaccion
-from .presupuesto import Presupuesto
-from .perfil_usuario import PerfilUsuario
+from .transferencia import Transferencia
 
-__all__ = ['Categoria', 'Transaccion', 'Presupuesto', 'PerfilUsuario']
+__all__ = ['Categoria', 'Transaccion', 'Transferencia']
+
+# Este archivo está vacío, simplemente marca el directorio como un paquete Python

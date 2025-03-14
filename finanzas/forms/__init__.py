@@ -1,3 +1,1 @@
-from .auth_forms import RegisterForm
-
-__all__ = ['RegisterForm'] 
+# Este archivo está vacío, simplemente marca el directorio como un paquete Python
