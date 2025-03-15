@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Detalle de Transacción - Money Manager{% endblock %}
+
+{% block content %}
+<div class="transaction-detail-container">
+    <div class="section-header">
+        <h1>Detalle de Transacción</h1>
+        <div class="action-buttons">
+            <a href="{% url 'finanzas:lista_transacciones' %}" class="btn btn-outline-primary">
+                <i class="fas fa-arrow-left"></i> Volver a transacciones
+            </a>
+            <a href="{% url 'finanzas:editar_transaccion' transaccion.id %}" class="btn btn-primary">
+                <i class="fas fa-edit"></i> Editar
+            </a>
+            <a href="{% url 'finanzas:eliminar_transaccion' transaccion.id %}" class="btn btn-danger">
+                <i class="fas fa-trash"></i> Eliminar
+            </a>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h2 class="transaction-title">
+                <span class="badge {% if transaccion.tipo == 'ingreso' %}badge-success{% else %}badge-danger{% endif %}">
+                    {{ transaccion.get_tipo_display }}
+                </span>
+                {{ transaccion.monto }}
+            </h2>
+        </div>
+        
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="detail-group">
+                        <h5 class="detail-label">Fecha:</h5>
+                        <p class="detail-value">{{ transaccion.fecha|date:"d/m/Y H:i" }}</p>
+                    </div>
+                    
+                    <div class="detail-group">
+                        <h5 class="detail-label">Categoría:</h5>
+                        <p class="detail-value">{{ transaccion.categoria.nombre|default:"Sin categoría" }}</p>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="detail-group">
+                        <h5 class="detail-label">Creado:</h5>
+                        <p class="detail-value">{{ transaccion.fecha_creacion|date:"d/m/Y H:i" }}</p>
+                    </div>
+                    
+                    <div class="detail-group">
+                        <h5 class="detail-label">Última actualización:</h5>
+                        <p class="detail-value">{{ transaccion.fecha_actualizacion|date:"d/m/Y H:i" }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            {% if transaccion.descripcion %}
+            <div class="detail-group">
+                <h5 class="detail-label">Descripción:</h5>
+                <p class="detail-value">{{ transaccion.descripcion }}</p>
+            </div>
+            {% endif %}
+            
+            {% if transaccion.comprobante %}
+            <div class="detail-group">
+                <h5 class="detail-label">Comprobante:</h5>
+                <div class="detail-value">
+                    <a href="{{ transaccion.comprobante.url }}" target="_blank" class="btn btn-info">
+                        <i class="fas fa-file-download"></i> Ver comprobante
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .transaction-detail-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    
+    .transaction-title {
+        font-size: 1.6rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .transaction-title .badge {
+        margin-right: 15px;
+    }
+    
+    .detail-group {
+        margin-bottom: 20px;
+    }
+    
+    .detail-label {
+        font-weight: bold;
+        margin-bottom: 5px;
+        color: #666;
+    }
+    
+    .detail-value {
+        font-size: 1.1rem;
+    }
+</style>
+{% endblock %} 

@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} - Money Manager{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-header">
+        <h1>{{ title }}</h1>
+        <a href="{% url 'finanzas:lista_transacciones' %}" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left"></i> Volver a transacciones
+        </a>
+    </div>
+    
+    <div class="card">
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data" id="transaccion-form">
+                {% csrf_token %}
+                
+                {% if form.errors %}
+                <div class="alert alert-danger">
+                    <strong>Por favor corrige los errores en el formulario:</strong>
+                    <ul>
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <li>{{ field.label }}: {{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                        {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+                
+                <div class="row">
+                    <!-- Tipo de transacción -->
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="{{ form.tipo.id_for_label }}">{{ form.tipo.label }}</label>
+                            {{ form.tipo }}
+                            {% if form.tipo.help_text %}
+                                <small class="form-text text-muted">{{ form.tipo.help_text }}</small>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Categoría -->
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="{{ form.categoria.id_for_label }}">{{ form.categoria.label }}</label>
+                            {{ form.categoria }}
+                            {% if form.categoria.help_text %}
+                                <small class="form-text text-muted">{{ form.categoria.help_text }}</small>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <!-- Fecha -->
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="{{ form.fecha.id_for_label }}">{{ form.fecha.label }}</label>
+                            {{ form.fecha }}
+                            {% if form.fecha.help_text %}
+                                <small class="form-text text-muted">{{ form.fecha.help_text }}</small>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Monto -->
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="{{ form.monto.id_for_label }}">{{ form.monto.label }}</label>
+                            {{ form.monto }}
+                            {% if form.monto.help_text %}
+                                <small class="form-text text-muted">{{ form.monto.help_text }}</small>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Descripción -->
+                <div class="form-group">
+                    <label for="{{ form.descripcion.id_for_label }}">{{ form.descripcion.label }}</label>
+                    {{ form.descripcion }}
+                    {% if form.descripcion.help_text %}
+                        <small class="form-text text-muted">{{ form.descripcion.help_text }}</small>
+                    {% endif %}
+                </div>
+                
+                <!-- Comprobante -->
+                <div class="form-group">
+                    <label for="{{ form.comprobante.id_for_label }}">{{ form.comprobante.label }}</label>
+                    {{ form.comprobante }}
+                    {% if form.comprobante.help_text %}
+                        <small class="form-text text-muted">{{ form.comprobante.help_text }}</small>
+                    {% endif %}
+                    {% if transaccion and transaccion.comprobante %}
+                        <p class="mt-2">
+                            Comprobante actual: 
+                            <a href="{{ transaccion.comprobante.url }}" target="_blank">Ver comprobante</a>
+                        </p>
+                    {% endif %}
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Guardar
+                    </button>
+                    <button type="submit" name="guardar_continuar" class="btn btn-success">
+                        <i class="fas fa-plus"></i> Guardar y Agregar Otra
+                    </button>
+                    <a href="{% url 'finanzas:lista_transacciones' %}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrajs %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Aplicar estilos a los campos del formulario
+        const form = document.getElementById('transaccion-form');
+        
+        if (form) {
+            // Agregar clases Bootstrap a los campos
+            const inputs = form.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+                input.classList.add('form-control');
+            });
+            
+            // Función para actualizar las categorías según el tipo
+            const tipoSelect = document.getElementById('{{ form.tipo.id_for_label }}');
+            const categoriaSelect = document.getElementById('{{ form.categoria.id_for_label }}');
+            
+            if (tipoSelect && categoriaSelect) {
+                tipoSelect.addEventListener('change', function() {
+                    const tipo = this.value;
+                    if (tipo) {
+                        fetch(`{% url 'finanzas:filtrar_categorias' %}?tipo=${tipo}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                // Guardar el valor seleccionado actualmente
+                                const valorSeleccionado = categoriaSelect.value;
+                                
+                                // Limpiar y rellenar el select de categorías
+                                categoriaSelect.innerHTML = '';
+                                data.categorias.forEach(cat => {
+                                    const option = document.createElement('option');
+                                    option.value = cat.id;
+                                    option.textContent = cat.nombre;
+                                    // Restaurar la selección si coincide
+                                    if (cat.id == valorSeleccionado) {
+                                        option.selected = true;
+                                    }
+                                    categoriaSelect.appendChild(option);
+                                });
+                            });
+                    }
+                });
+            }
+        }
+    });
+</script>
+{% endblock %} 

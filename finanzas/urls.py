@@ -7,6 +7,14 @@ from finanzas.views.transferencia_views import (
     detalle_transferencia,
     cancelar_transferencia
 )
+from finanzas.views.transaccion_views import (
+    lista_transacciones,
+    nueva_transaccion,
+    editar_transaccion,
+    eliminar_transaccion,
+    detalle_transaccion,
+    filtrar_categorias
+)
 
 app_name = 'finanzas'
 
@@ -24,4 +32,12 @@ urlpatterns = [
     path('transferencias/nueva/', nueva_transferencia, name='nueva_transferencia'),
     path('transferencias/<uuid:uuid>/', detalle_transferencia, name='detalle_transferencia'),
     path('transferencias/<uuid:uuid>/cancelar/', cancelar_transferencia, name='cancelar_transferencia'),
+    
+    # Transacciones
+    path('transacciones/', lista_transacciones, name='lista_transacciones'),
+    path('transacciones/nueva/', nueva_transaccion, name='nueva_transaccion'),
+    path('transacciones/<int:id>/', detalle_transaccion, name='detalle_transaccion'),
+    path('transacciones/<int:id>/editar/', editar_transaccion, name='editar_transaccion'),
+    path('transacciones/<int:id>/eliminar/', eliminar_transaccion, name='eliminar_transaccion'),
+    path('api/categorias-por-tipo/', filtrar_categorias, name='filtrar_categorias'),
 ]

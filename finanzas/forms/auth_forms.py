@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
-from ..models import PerfilUsuario
+from ..models.perfil_usuario import PerfilUsuario
 
 class RegisterForm(UserCreationForm):
     """Formulario personalizado para registro de usuarios"""
