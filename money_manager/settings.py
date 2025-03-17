@@ -147,7 +147,11 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# Simplificamos el almacenamiento de archivos estáticos para Vercel
+if 'VERCEL' in os.environ:
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+else:
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Archivos de medios (subidos por usuarios)
 MEDIA_URL = '/media/'
