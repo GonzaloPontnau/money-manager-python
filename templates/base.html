@@ -28,6 +28,9 @@
                 <li><a href="{% url 'finanzas:dashboard' %}"><i class="fas fa-chart-line mr-1"></i> Dashboard</a></li>
                 {% if user.is_authenticated %}
                     <li><a href="{% url 'finanzas:lista_transferencias' %}"><i class="fas fa-exchange-alt mr-1"></i> Transferencias</a></li>
+                    {% if user.is_superuser %}
+                    <li><a href="{% url 'admin:index' %}"><i class="fas fa-cog mr-1"></i> Admin</a></li>
+                    {% endif %}
                     <li><a href="{% url 'finanzas:logout' %}"><i class="fas fa-sign-out-alt mr-1"></i> Cerrar Sesión</a></li>
                 {% else %}
                     <li><a href="{% url 'finanzas:login' %}"><i class="fas fa-sign-in-alt mr-1"></i> Iniciar Sesión</a></li>

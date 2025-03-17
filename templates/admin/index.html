@@ -1,6 +1,9 @@
 <!-- index.html -->
 <!-- Extiende el template base del admin de Django -->
-{% extends "admin/index.html" %} {% load static %} {% block content %}
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block content %}
 <div class="dashboard-summary">
   <!-- Sección de gráfico con Chart.js -->
   <div class="dashboard-charts">
@@ -60,6 +63,8 @@
   });
 </script>
 
-{% block extrajs %} {{ categorias_gastos|json_script:"categorias-gastos-labels"
-}} {{ categorias_gastos.values|json_script:"categorias-gastos-values" }} {%
-endblock %} {% endblock %}
+{% block extrajs %} 
+  {{ categorias_gastos|json_script:"categorias-gastos-labels" }}
+  {{ categorias_gastos.values|json_script:"categorias-gastos-values" }} 
+{% endblock %}
+{% endblock %}
