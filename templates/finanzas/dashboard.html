@@ -134,17 +134,19 @@
         align-items: center;
         justify-content: center;
         padding: 20px;
-        background-color: #fff;
+        background-color: var(--medium-dark);
         border-radius: 8px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        border: 1px solid var(--border-color);
+        box-shadow: var(--card-shadow);
         transition: all 0.3s ease;
         text-decoration: none;
-        color: #333;
+        color: var(--text-color);
     }
     
     .action-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        background-color: var(--light-dark);
     }
     
     .action-card i {
@@ -152,19 +154,19 @@
     }
     
     .action-card.income i {
-        color: #00b894;
+        color: var(--secondary-color);
     }
     
     .action-card.expense i {
-        color: #ff7675;
+        color: var(--danger-color);
     }
     
     .action-card.list i {
-        color: #0984e3;
+        color: var(--primary-light);
     }
     
     .action-card.transfer i {
-        color: #6c5ce7;
+        color: var(--primary-color);
     }
     
     .empty-state {
@@ -185,8 +187,9 @@
         const ctx = document.getElementById('balanceChart').getContext('2d');
         
         // Datos para el gráfico (ingresos vs gastos)
-        const ingresos = {{ ingresos_totales|floatformat:2 }};
-        const gastos = {{ gastos_totales|floatformat:2 }};
+        // Predefinimos las variables para evitar problemas de sintaxis
+        var ingresosValue = parseFloat("{{ ingresos_totales|floatformat:2 }}".replace(',', '.'));
+        var gastosValue = parseFloat("{{ gastos_totales|floatformat:2 }}".replace(',', '.'));
         
         // Crear el gráfico
         new Chart(ctx, {
@@ -195,7 +198,7 @@
                 labels: ['Ingresos', 'Gastos'],
                 datasets: [{
                     label: 'Monto',
-                    data: [ingresos, gastos],
+                    data: [ingresosValue, gastosValue],
                     backgroundColor: [
                         'rgba(0, 184, 148, 0.7)',  // Verde para ingresos
                         'rgba(255, 118, 117, 0.7)' // Rojo para gastos

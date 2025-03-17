@@ -11,9 +11,29 @@ class TransaccionForm(forms.ModelForm):
         model = Transaccion
         fields = ['fecha', 'monto', 'tipo', 'categoria', 'descripcion', 'comprobante']
         widgets = {
-            'fecha': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
-            'descripcion': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Descripción de la transacción'}),
-            'monto': forms.NumberInput(attrs={'step': '0.01', 'min': '0.01'}),
+            'fecha': forms.DateTimeInput(attrs={
+                'type': 'datetime-local',
+                'style': 'background-color: #2D2D3A; color: #E2E2E2; border-color: #3F3F50;'
+            }),
+            'descripcion': forms.Textarea(attrs={
+                'rows': 3, 
+                'placeholder': 'Descripción de la transacción',
+                'style': 'background-color: #2D2D3A; color: #E2E2E2; border-color: #3F3F50;'
+            }),
+            'monto': forms.NumberInput(attrs={
+                'step': '0.01', 
+                'min': '0.01',
+                'style': 'background-color: #2D2D3A; color: #E2E2E2; border-color: #3F3F50;'
+            }),
+            'tipo': forms.Select(attrs={
+                'style': 'background-color: #2D2D3A; color: #E2E2E2; border-color: #3F3F50;'
+            }),
+            'categoria': forms.Select(attrs={
+                'style': 'background-color: #2D2D3A; color: #E2E2E2; border-color: #3F3F50;'
+            }),
+            'comprobante': forms.ClearableFileInput(attrs={
+                'style': 'background-color: #2D2D3A; color: #E2E2E2; border-color: #3F3F50;'
+            }),
         }
     
     def __init__(self, *args, **kwargs):

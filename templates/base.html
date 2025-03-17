@@ -14,6 +14,43 @@
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     {% block extracss %}{% endblock %}
+    
+    <!-- Estilos críticos para formularios oscuros -->
+    <style>
+        input, select, textarea, 
+        .form-control, .custom-select, .custom-file-input,
+        .card, .card-body, .card-header, .card-footer {
+            background-color: #2D2D3A !important;
+            color: #E2E2E2 !important;
+            border-color: #3F3F50 !important;
+        }
+        
+        input[type="date"]::-webkit-calendar-picker-indicator,
+        input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+            filter: invert(0.8);
+        }
+        
+        .custom-file-label, .custom-file-label::after {
+            background-color: #2D2D3A !important;
+            color: #E2E2E2 !important;
+        }
+        
+        .custom-file-label::after {
+            background-color: #1E1E26 !important;
+        }
+        
+        /* Eliminar fondos blancos en botones dentro de formularios */
+        .card .btn-primary, .card .btn-success, .card .btn-danger,
+        .card .btn-warning, .card .btn-info, .card .btn-secondary {
+            color: #ffffff !important;
+        }
+        
+        .card .btn-outline-primary, .card .btn-outline-success,
+        .card .btn-outline-danger, .card .btn-outline-warning,
+        .card .btn-outline-info, .card .btn-outline-secondary {
+            background-color: transparent !important;
+        }
+    </style>
 </head>
 <body>
     <header>

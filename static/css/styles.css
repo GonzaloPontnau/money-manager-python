@@ -472,3 +472,79 @@ footer {
         margin: 0 15px;
     }
 }
+
+/* Estilos para cards de Bootstrap */
+.card {
+    background-color: var(--medium-dark);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+}
+
+.card-body {
+    background-color: var(--medium-dark);
+    color: var(--text-color);
+}
+
+.card-header, .card-footer {
+    background-color: var(--light-dark);
+    border-color: var(--border-color);
+    color: var(--text-color);
+}
+
+.alert-danger {
+    background-color: rgba(255, 118, 117, 0.1);
+    border-color: var(--danger-color);
+    color: #ff9e9d;
+}
+
+/* Ajustes adicionales para elementos de formulario en cards */
+.card .form-control, .card select.form-control {
+    background-color: var(--light-dark);
+    border-color: var(--border-color);
+    color: var(--text-color);
+}
+
+.card .form-control:focus, .card select.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(108, 92, 231, 0.25);
+}
+
+/* Estilos adicionales para formularios (específicos para componentes Bootstrap) */
+.form-control {
+    background-color: var(--light-dark) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-color) !important;
+}
+
+.form-control:focus {
+    background-color: var(--light-dark) !important;
+    color: var(--text-color) !important;
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 0.2rem rgba(108, 92, 231, 0.25) !important;
+}
+
+input[type="date"], input[type="datetime-local"], 
+input[type="text"], input[type="number"], 
+textarea, select, .custom-select {
+    background-color: var(--light-dark) !important;
+    color: var(--text-color) !important;
+    border-color: var(--border-color) !important;
+}
+
+.input-group-text {
+    background-color: var(--light-dark) !important;
+    color: var(--text-color) !important;
+    border-color: var(--border-color) !important;
+}
+
+/* Estilos para la fecha en Chrome/Edge */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.8);
+    cursor: pointer;
+}
+
+/* Sobreescribe estilos específicos de Bootstrap */
+.custom-select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'%3e%3cpath fill='%23e2e2e2' d='M2 0L0 2h4zm0 5L0 3h4z'/%3e%3c/svg%3e") !important;
+}

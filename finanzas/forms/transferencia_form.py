@@ -6,12 +6,27 @@ class TransferenciaForm(forms.ModelForm):
     receptor_username = forms.CharField(
         label="Usuario destinatario",
         max_length=150,
-        help_text="Ingresa el nombre de usuario del destinatario"
+        help_text="Ingresa el nombre de usuario del destinatario",
+        widget=forms.TextInput(attrs={
+            'style': 'background-color: #2D2D3A; color: #E2E2E2; border-color: #3F3F50;'
+        })
     )
     
     class Meta:
         model = Transferencia
         fields = ['receptor_username', 'monto', 'concepto']
+        widgets = {
+            'monto': forms.NumberInput(attrs={
+                'step': '0.01', 
+                'min': '0.01',
+                'style': 'background-color: #2D2D3A; color: #E2E2E2; border-color: #3F3F50;'
+            }),
+            'concepto': forms.Textarea(attrs={
+                'rows': 3, 
+                'placeholder': 'Motivo de la transferencia',
+                'style': 'background-color: #2D2D3A; color: #E2E2E2; border-color: #3F3F50;'
+            }),
+        }
         
     def clean_receptor_username(self):
         """Validar que el usuario receptor exista y no sea el mismo que el emisor"""

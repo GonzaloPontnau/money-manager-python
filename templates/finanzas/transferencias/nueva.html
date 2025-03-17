@@ -170,3 +170,57 @@
     }
 </style>
 {% endblock %}
+
+{% block extrajs %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Aplicar estilos oscuros a todos los elementos del formulario
+        const form = document.querySelector('form');
+        if (form) {
+            // Seleccionar todos los inputs, selects y textareas
+            const formElements = form.querySelectorAll('input, select, textarea');
+            formElements.forEach(el => {
+                // Aplicar estilo oscuro
+                el.style.backgroundColor = '#2D2D3A';
+                el.style.color = '#E2E2E2';
+                el.style.borderColor = '#3F3F50';
+            });
+            
+            // Función para aplicar estilos a elementos dinámicos
+            const applyDarkStyles = function() {
+                document.querySelectorAll('input, select, textarea, .form-control').forEach(el => {
+                    el.style.backgroundColor = '#2D2D3A';
+                    el.style.color = '#E2E2E2';
+                    el.style.borderColor = '#3F3F50';
+                });
+            };
+            
+            // Aplicar estilos inicialmente
+            applyDarkStyles();
+            
+            // Continuar aplicando estilos para elementos que pueden ser generados dinámicamente
+            setInterval(applyDarkStyles, 100);
+        }
+    });
+</script>
+
+<!-- Estilos para forzar el tema oscuro en los elementos de formulario -->
+<style>
+    /* Estilos críticos con !important para máxima prioridad */
+    input, select, textarea, .form-control, .custom-select {
+        background-color: #2D2D3A !important;
+        color: #E2E2E2 !important;
+        border-color: #3F3F50 !important;
+    }
+    
+    /* Específicamente para los inputs de tipo date y similares */
+    input[type="date"], input[type="datetime-local"] {
+        color-scheme: dark !important;
+    }
+    
+    /* Selectores personalizados */
+    .custom-select {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'%3e%3cpath fill='%23e2e2e2' d='M2 0L0 2h4zm0 5L0 3h4z'/%3e%3c/svg%3e") !important;
+    }
+</style>
+{% endblock %}

@@ -272,5 +272,34 @@
         color: white;
         transform: translateY(-2px);
     }
+    
+    /* Estilos para corregir los colores de la tabla de transferencias */
+    table {
+        background-color: var(--medium-dark) !important;
+    }
+    
+    thead, tbody, tr, th, td {
+        background-color: var(--medium-dark) !important;
+        color: var(--text-color) !important;
+        border-color: var(--border-color) !important;
+    }
+    
+    tr.gasto, tr.ingreso {
+        background-color: var(--medium-dark) !important;
+    }
+    
+    tr.gasto:hover, tr.ingreso:hover {
+        background-color: var(--light-dark) !important;
+    }
+    
+    /* Estilos para las pestañas */
+    .tab-content {
+        background-color: var(--medium-dark) !important;
+        border-color: var(--border-color) !important;
+    }
+    
+    .tab-pane {
+        background-color: transparent !important;
+    }
 </style>
 {% endblock %}
