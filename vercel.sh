@@ -4,17 +4,24 @@ echo "VERCEL_ENV: $VERCEL_ENV"
 echo "PYTHON_VERSION: $(python --version)"
 echo "NODE_VERSION: $(node --version)"
 
-# Instalar dependencias
-pip install -r requirements.txt
+# Instalar dependencias con output detallado
+echo "Instalando dependencias..."
+pip install -r requirements.txt -v
 
 # Crear directorio para archivos estáticos
+echo "Creando directorio de estáticos..."
 mkdir -p staticfiles
 
 # Copiar archivos estáticos manualmente
 if [ -d "static" ]; then
+    echo "Copiando archivos estáticos..."
     cp -r static/* staticfiles/
-    echo "Archivos estáticos copiados correctamente"
+    echo "Listando archivos estáticos copiados:"
+    find staticfiles -type f | sort
 fi
 
-# Generar un archivo de verificación
-echo "/* Archivo de verificación para Vercel */" > staticfiles/vercel.css
+# Mostrar el contenido del directorio
+echo "Estructura de directorios:"
+find . -type d | sort
+
+echo "Construcción completada"

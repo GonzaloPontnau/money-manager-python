@@ -29,7 +29,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', 'ZteozxDKhtDSmUxxWnRaK0qt4-osWirNtPnhHrhTbaKS-A5A6DhFsKSiCtz_KxAFrKw')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = 'VERCEL' not in os.environ
+# Temporalmente habilitamos DEBUG para diagnosticar errores
+DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.vercel.app', '.now.sh']
 
@@ -147,9 +148,27 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 
-# Simplificamos el almacenamiento de archivos estáticos para Vercel
+# Configuración para entorno de Vercel
 if 'VERCEL' in os.environ:
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+    # Simplificamos el storage para Vercel
+    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+    
+    # Configuración para ver errores
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'handlers': {
+            'console': {
+                'class': 'logging.StreamHandler',
+            },
+        },
+        'loggers': {
+            'django': {
+                'handlers': ['console'],
+                'level': 'ERROR',
+            },
+        },
+    }
 else:
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
