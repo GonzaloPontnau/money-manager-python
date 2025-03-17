@@ -23,6 +23,18 @@
     box-sizing: border-box;
 }
 
+/* Estilos base */
+body {
+    background-color: #1A1A25;
+    color: #E2E2E2;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     line-height: 1.6;
