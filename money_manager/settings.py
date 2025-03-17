@@ -141,7 +141,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'static'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Configuración adicional para archivos estáticos
 STATICFILES_DIRS = [
@@ -150,8 +150,11 @@ STATICFILES_DIRS = [
 
 # Configuración para entorno de Vercel
 if 'VERCEL' in os.environ:
-    # Simplificamos el storage para Vercel
+    # Aseguramos que los archivos estáticos se sirvan correctamente en Vercel
     STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+    
+    # Usamos DEBUG False para logs más claros
+    DEBUG = False
     
     # Configuración para ver errores
     LOGGING = {
@@ -166,6 +169,21 @@ if 'VERCEL' in os.environ:
             'django': {
                 'handlers': ['console'],
                 'level': 'ERROR',
+            },
+            'django.request': {
+                'handlers': ['console'],
+                'level': 'DEBUG',
+                'propagate': False,
+            },
+            'django.template': {
+                'handlers': ['console'],
+                'level': 'DEBUG',
+                'propagate': False,
+            },
+            'django.staticfiles': {
+                'handlers': ['console'],
+                'level': 'DEBUG',
+                'propagate': False,
             },
         },
     }
