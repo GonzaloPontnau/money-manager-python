@@ -15,9 +15,20 @@ mkdir -p staticfiles
 echo "Copiando archivos estáticos manualmente..."
 cp -r static/* staticfiles/
 
-echo "Generando archivo para verificar directorio..."
-echo "/* Archivo generado automáticamente */" > staticfiles/styles.css
+echo "Asegurando que styles.css está en la raíz de staticfiles..."
+# Crear styles.css directamente en la raíz para coincidir con la referencia en los templates
+echo "/* Archivo generado automáticamente para Vercel */" > staticfiles/styles.css
 cat static/css/styles.css >> staticfiles/styles.css
+
+echo "Asegurando que css/styles.css también existe para referencias locales..."
+mkdir -p staticfiles/css
+cp static/css/styles.css staticfiles/css/styles.css
 
 echo "Construcción completada"
 touch staticfiles/.gitkeep
+
+# Listar archivos para debug
+echo "Contenido de staticfiles:"
+ls -la staticfiles
+echo "Contenido de staticfiles/css (si existe):"
+ls -la staticfiles/css 2>/dev/null || echo "No existe directorio css"

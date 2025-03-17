@@ -1,27 +1,33 @@
 #!/bin/bash
 
+# Asegurar que los comandos fallen en errores
+set -e
+
 echo "VERCEL_ENV: $VERCEL_ENV"
 echo "PYTHON_VERSION: $(python --version)"
 echo "NODE_VERSION: $(node --version)"
 
-# Instalar dependencias con output detallado
-echo "Instalando dependencias..."
+# Instalar dependencias de Python
+echo "Instalando dependencias de Python..."
 pip install -r requirements.txt -v
 
-# Crear directorio para archivos estáticos
-echo "Creando directorio de estáticos..."
+# Crear directorios necesarios
+echo "Creando directorios estáticos..."
 mkdir -p staticfiles
+mkdir -p mediafiles
 
-# Copiar archivos estáticos manualmente
+# Colectar estáticos (si usas Django/Flask)
+# echo "Colectando estáticos..."
+# python manage.py collectstatic --noinput  # Para Django
+
+# Copia manual de estáticos (alternativa)
 if [ -d "static" ]; then
     echo "Copiando archivos estáticos..."
     cp -r static/* staticfiles/
-    echo "Listando archivos estáticos copiados:"
+    echo "Estáticos copiados:"
     find staticfiles -type f | sort
 fi
 
-# Mostrar el contenido del directorio
-echo "Estructura de directorios:"
-find . -type d | sort
-
-echo "Construcción completada"
+# Verificar estructura
+echo "Estructura del proyecto:"
+tree -L 3

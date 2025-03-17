@@ -12,8 +12,20 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     
     {% load static %}
-    <!-- Cargar estilos directamente como URL absoluta en Vercel -->
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <!-- Cargar estilos con mejor compatibilidad para Vercel -->
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <!-- Fallback si la ruta anterior no funciona -->
+    <script>
+        (function() {
+            var link = document.querySelector('link[href="{% static 'styles.css' %}"]');
+            link.onerror = function() {
+                var fallbackLink = document.createElement('link');
+                fallbackLink.rel = 'stylesheet';
+                fallbackLink.href = '/static/styles.css';
+                document.head.appendChild(fallbackLink);
+            };
+        })();
+    </script>
     
     <!-- Agregar estilos inline críticos para asegurar que la aplicación se vea bien -->
     <style>
