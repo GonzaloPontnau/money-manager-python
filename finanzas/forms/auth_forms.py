@@ -1,6 +1,8 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+# gettext_lazy se importa como '_' por convención en Django para internacionalización
+# Se usa para marcar strings traducibles en los campos del formulario:
 from django.utils.translation import gettext_lazy as _
 from ..models.perfil_usuario import PerfilUsuario
 

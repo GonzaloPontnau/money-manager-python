@@ -1,8 +1,9 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from finanzas.forms.auth_forms import RegisterForm
 
 def login_view(request):
     """Vista para iniciar sesión"""
@@ -34,7 +35,7 @@ def register_view(request):
         return redirect('finanzas:dashboard')
         
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = RegisterForm(request.POST)
         if form.is_valid():
             user = form.save()
             login(request, user)
@@ -43,7 +44,7 @@ def register_view(request):
         else:
             messages.error(request, "Error al crear la cuenta. Por favor revisa los datos.")
     else:
-        form = UserCreationForm()
+        form = RegisterForm()
         
     return render(request, 'finanzas/register.html', {'form': form})
 

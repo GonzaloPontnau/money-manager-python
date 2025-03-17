@@ -75,3 +75,5 @@ add_test_data.py
 *.yaml
 *.yml
 settings.py
+
+requirements.txt
