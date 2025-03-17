@@ -41,74 +41,17 @@
         })();
     </script>
     
-    <!-- Agregar estilos inline críticos para asegurar que la aplicación se vea bien -->
+    <!-- Estilos críticos mínimos solo como fallback -->
     <style>
-        /* Estilos base críticos */
+        /* Solo estilos base críticos esenciales en caso de fallo de carga del CSS */
         body {
             background-color: #1A1A25;
             color: #E2E2E2;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 2rem;
-            background-color: #0C0C10;
-            border-bottom: 1px solid #3F3F50;
-        }
-
-        .logo h1 {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #8A7AFF;
-        }
-
-        .nav-links {
-            display: flex;
-            list-style: none;
-        }
-
-        .nav-links li {
-            margin-left: 1.5rem;
-        }
-
-        .nav-links a {
-            color: #ADADAD;
-            text-decoration: none;
-            padding: 8px 12px;
-            border-radius: 8px;
-        }
-
-        .nav-links a:hover {
-            color: #8A7AFF;
-            background-color: rgba(108, 92, 231, 0.1);
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            flex: 1;
-        }
-
-        footer {
-            text-align: center;
-            padding: 30px;
-            background-color: #0C0C10;
-            color: #ADADAD;
-            border-top: 1px solid #3F3F50;
         }
         
-        input, select, textarea, 
-        .form-control, .custom-select, .custom-file-input,
-        .card, .card-body, .card-header, .card-footer {
+        /* Estilos cruciales para input oscuros - alta prioridad */
+        input, select, textarea, .form-control {
             background-color: #2D2D3A !important;
             color: #E2E2E2 !important;
             border-color: #3F3F50 !important;
@@ -116,43 +59,6 @@
     </style>
     
     {% block extracss %}{% endblock %}
-    
-    <!-- Estilos críticos para formularios oscuros -->
-    <style>
-        input, select, textarea, 
-        .form-control, .custom-select, .custom-file-input,
-        .card, .card-body, .card-header, .card-footer {
-            background-color: #2D2D3A !important;
-            color: #E2E2E2 !important;
-            border-color: #3F3F50 !important;
-        }
-        
-        input[type="date"]::-webkit-calendar-picker-indicator,
-        input[type="datetime-local"]::-webkit-calendar-picker-indicator {
-            filter: invert(0.8);
-        }
-        
-        .custom-file-label, .custom-file-label::after {
-            background-color: #2D2D3A !important;
-            color: #E2E2E2 !important;
-        }
-        
-        .custom-file-label::after {
-            background-color: #1E1E26 !important;
-        }
-        
-        /* Eliminar fondos blancos en botones dentro de formularios */
-        .card .btn-primary, .card .btn-success, .card .btn-danger,
-        .card .btn-warning, .card .btn-info, .card .btn-secondary {
-            color: #ffffff !important;
-        }
-        
-        .card .btn-outline-primary, .card .btn-outline-success,
-        .card .btn-outline-danger, .card .btn-outline-warning,
-        .card .btn-outline-info, .card .btn-outline-secondary {
-            background-color: transparent !important;
-        }
-    </style>
     
     <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
 </head>

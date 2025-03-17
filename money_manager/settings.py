@@ -49,8 +49,11 @@ INSTALLED_APPS = [
     # 'crispy_bootstrap4',  # Bootstrap 4 para crispy-forms
 ]
 
+# Detectar si estamos en Vercel
+ON_VERCEL = os.environ.get('VERCEL', False)
+
+# Lista base de middleware
 MIDDLEWARE = [
-    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -59,6 +62,16 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+# Añadir WhiteNoise solo si estamos en Vercel o si está explícitamente instalado
+try:
+    import whitenoise
+    MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
+    if not DEBUG:
+        STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+except ImportError:
+    # WhiteNoise no está instalado, usamos el storage predeterminado
+    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
 ROOT_URLCONF = 'money_manager.urls'
 
@@ -84,12 +97,34 @@ WSGI_APPLICATION = 'money_manager.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+# Configuración de base de datos dependiente del entorno
+import os
+
+# Detectar si estamos en Vercel
+ON_VERCEL = os.environ.get('VERCEL', False)
+
+# Configuración de la base de datos
+if ON_VERCEL:
+    # Configuración para Vercel (mantener tu configuración de PostgreSQL)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            # Aquí se mantienen tus configuraciones existentes para Vercel
+            'NAME': os.environ.get('POSTGRES_DATABASE', 'verceldb'),
+            'USER': os.environ.get('POSTGRES_USER', 'default'),
+            'PASSWORD': os.environ.get('POSTGRES_PASSWORD', ''),
+            'HOST': os.environ.get('POSTGRES_HOST', 'localhost'),
+            'PORT': os.environ.get('POSTGRES_PORT', '5432'),
+        }
     }
-}
+else:
+    # Configuración para desarrollo local (SQLite)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
+    }
 
 # Si estamos en Vercel o hay una URL de base de datos configurada, usar dj_database_url
 if 'DATABASE_URL' in os.environ:
@@ -140,7 +175,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = '/staticfiles/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Configuración adicional para archivos estáticos
@@ -187,8 +222,6 @@ if 'VERCEL' in os.environ:
             },
         },
     }
-else:
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Archivos de medios (subidos por usuarios)
 MEDIA_URL = '/media/'
