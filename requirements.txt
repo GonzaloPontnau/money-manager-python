@@ -1,12 +1,12 @@
 asgiref==3.8.1
 colorama==0.4.6
 crispy-bootstrap4==2024.10
-Django==5.1.7
+django>=5.1.7
 django-crispy-forms==2.3
 iniconfig==2.0.0
 mysqlclient==2.2.7
 packaging==24.2
-pillow==11.1.0
+Pillow
 pluggy==1.5.0
 pytest==8.3.5
 sqlparse==0.5.3
@@ -16,3 +16,4 @@ whitenoise
 dj-database-url
 python-dotenv
 gunicorn
+psycopg2-binary

@@ -60,8 +60,5 @@ coverage.xml
 *.pyc
 add_test_data.py
 
-# Archivos de configuración
-settings.py
-
 # Vercel
 .vercel
