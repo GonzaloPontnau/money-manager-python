@@ -1,13 +1,19 @@
 #!/bin/bash
 # Script para crear archivos estáticos y ejecutar migraciones
+
+# Usar rutas explícitas a los ejecutables de Python
 echo "Instalando dependencias..."
-pip install -r requirements.txt
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+
+echo "Creando directorio de estáticos..."
+mkdir -p staticfiles
 
 echo "Recogiendo archivos estáticos..."
 python manage.py collectstatic --noinput
 
 echo "Ejecutando migraciones..."
-# Usamos la conexión directa para migraciones, que es más estable
 python manage.py migrate
 
 echo "Construcción completada"
+touch staticfiles/.gitkeep
