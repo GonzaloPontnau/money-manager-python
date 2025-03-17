@@ -40,7 +40,16 @@ else
 fi
 
 echo "Asegurando que css/styles.css también existe..."
+mkdir -p staticfiles/css
 cp staticfiles/styles.css staticfiles/css/styles.css
+
+# Asegurar que el archivo vercel.css también se procesa correctamente
+if [ -f "static/css/vercel.css" ]; then
+  echo "Procesando vercel.css..."
+  # Reemplazar @import url('styles.css') con el contenido real del archivo
+  sed -i 's|@import url(.styles.css.);|/* Contenido importado de styles.css */|' staticfiles/css/vercel.css
+  cat staticfiles/css/styles.css >> staticfiles/css/vercel.css
+fi
 
 echo "Creando archivo de test para verificar que los estáticos funcionan..."
 echo "<html><body><h1>Archivos estáticos funcionando</h1></body></html>" > staticfiles/test.html

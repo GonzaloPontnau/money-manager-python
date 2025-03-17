@@ -13,18 +13,29 @@
     
     {% load static %}
     <!-- Cargar estilos CSS de forma optimizada -->
-    <link rel="stylesheet" href="{% static 'styles.css' %}?v=1.0.1">
-    <!-- Fallback si la ruta anterior no funciona -->
+    <link rel="stylesheet" href="{% static 'styles.css' %}?v=1.0.2">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=1.0.2">
+    <!-- Fallback para Vercel -->
+    <link rel="stylesheet" href="{% static 'css/vercel-fallback.css' %}?v=1.0.1">
+    
+    <!-- Script de fallback mejorado para asegurar que los estilos se carguen correctamente -->
     <script>
         (function() {
-            var link = document.querySelector('link[href^="{% static 'styles.css' %}"]');
-            if (link) {
-                link.onerror = function() {
-                    console.log('Fallback para cargar CSS');
+            // Verificar si los estilos principales se cargaron correctamente
+            var mainLink = document.querySelector('link[href^="{% static \'styles.css\' %}"]');
+            if (mainLink) {
+                mainLink.onerror = function() {
+                    console.log('Fallback para cargar CSS principal');
                     var fallbackLink = document.createElement('link');
                     fallbackLink.rel = 'stylesheet';
-                    fallbackLink.href = '/static/styles.css?v=1.0.1';
+                    fallbackLink.href = '/static/styles.css?v=1.0.2';
                     document.head.appendChild(fallbackLink);
+                    
+                    // Intentar cargar desde la ruta alternativa
+                    var secondFallbackLink = document.createElement('link');
+                    secondFallbackLink.rel = 'stylesheet';
+                    secondFallbackLink.href = '/css/styles.css?v=1.0.2';
+                    document.head.appendChild(secondFallbackLink);
                 };
             }
         })();
