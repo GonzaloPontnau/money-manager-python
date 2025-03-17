@@ -1,6 +1,13 @@
+#!/bin/bash
 # Script para crear archivos estáticos y ejecutar migraciones
+echo "Instalando dependencias..."
 pip install -r requirements.txt
+
+echo "Recogiendo archivos estáticos..."
 python manage.py collectstatic --noinput
-python manage.py makemigrations
+
+echo "Ejecutando migraciones..."
+# Usamos la conexión directa para migraciones, que es más estable
 python manage.py migrate
-chmod +x build_files.sh  # Esta línea se ejecuta en Vercel
+
+echo "Construcción completada"

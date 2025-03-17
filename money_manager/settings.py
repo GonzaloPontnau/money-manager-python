@@ -26,7 +26,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-your-secret-key-here')
+SECRET_KEY = os.environ.get('SECRET_KEY', 'ZteozxDKhtDSmUxxWnRaK0qt4-osWirNtPnhHrhTbaKS-A5A6DhFsKSiCtz_KxAFrKw')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = 'VERCEL' not in os.environ
@@ -90,9 +90,19 @@ DATABASES = {
     }
 }
 
-# Si estamos en Vercel, usar la configuración de URL para la base de datos
+# Si estamos en Vercel o hay una URL de base de datos configurada, usar dj_database_url
 if 'DATABASE_URL' in os.environ:
-    DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
+    # Detectar automáticamente el tipo de base de datos (MySQL o PostgreSQL) desde la URL
+    DATABASES['default'] = dj_database_url.config(
+        conn_max_age=600,
+        conn_health_checks=True,
+        ssl_require=True
+    )
+    
+    # Si es MySQL, usar PyMySQL como driver
+    if DATABASES['default']['ENGINE'] == 'django.db.backends.mysql':
+        import pymysql
+        pymysql.install_as_MySQLdb()
 
 
 # Password validation

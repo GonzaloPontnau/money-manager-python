@@ -39,6 +39,7 @@ static/admin/
 # Configuración sensible
 .env
 money_manager/settings_local.py
+money_manager/settings.py
 
 # Archivos de IDE/editores
 .idea/
