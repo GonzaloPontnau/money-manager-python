@@ -46,9 +46,9 @@ cp staticfiles/styles.css staticfiles/css/styles.css
 # Asegurar que el archivo vercel.css también se procesa correctamente
 if [ -f "static/css/vercel.css" ]; then
   echo "Procesando vercel.css..."
-  # Reemplazar @import url('styles.css') con el contenido real del archivo
-  sed -i 's|@import url(.styles.css.);|/* Contenido importado de styles.css */|' staticfiles/css/vercel.css
-  cat staticfiles/css/styles.css >> staticfiles/css/vercel.css
+  # Copiar el archivo vercel.css sin modificaciones
+  cp static/css/vercel.css staticfiles/css/vercel.css
+  # No necesitamos hacer el reemplazo con sed ya que hemos actualizado el archivo fuente
 fi
 
 echo "Creando archivo de test para verificar que los estáticos funcionan..."

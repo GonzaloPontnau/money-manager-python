@@ -22,7 +22,7 @@
     <script>
         (function() {
             // Verificar si los estilos principales se cargaron correctamente
-            var mainLink = document.querySelector('link[href^="{% static \'styles.css\' %}"]');
+            var mainLink = document.querySelector('link[href*="styles.css"]');
             if (mainLink) {
                 mainLink.onerror = function() {
                     console.log('Fallback para cargar CSS principal');

@@ -1,2 +1,31 @@
 /* Este archivo se incluye para asegurar que los estilos se carguen correctamente en Vercel */
-@import url('styles.css');
+/* Importamos los estilos directamente en lugar de usar @import para evitar problemas */
+
+:root {
+    --primary-color: #6C5CE7;
+    --primary-light: #8A7AFF;
+    --secondary-color: #00B894;
+    --danger-color: #FF7675;
+    --warning-color: #FDCB6E;
+    --dark-color: #13131A;
+    --darker-color: #0C0C10;
+    --medium-dark: #1E1E26;
+    --light-dark: #2D2D3A;
+    --text-color: #E2E2E2;
+    --text-muted: #ADADAD;
+    --border-radius: 8px;
+    --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    --card-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+    --border-color: #3F3F50;
+}
+
+body {
+    background-color: #1A1A25;
+    color: #E2E2E2;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
