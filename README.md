@@ -1,42 +1,51 @@
 # 🚀 Money Manager - Sistema de Gestión Financiera Personal
 
-![Money Manager Logo](https://via.placeholder.com/150x150.png?text=Money+Manager)
+![Web]()
+[![Estado del Proyecto](https://img.shields.io/badge/Estado-Completado-success)](https://github.com/tu-usuario/money-manager-python)
+[![Documentación](https://img.shields.io/badge/Documentación-Django-blue)](https://docs.djangoproject.com/)
 
-## 📋 Descripción
+## Descripción
 
 Money Manager es una aplicación web completa para la gestión de finanzas personales desarrollada con Django. Permite a los usuarios registrar, categorizar y visualizar sus ingresos y gastos, así como realizar transferencias entre usuarios, establecer presupuestos y monitorear su salud financiera a través de un intuitivo dashboard.
 
-> ![TIP]
+> [!TIP]
 > Este proyecto fue diseñado con un enfoque modular para facilitar su mantenimiento y expansión.
 
----
+### Demostración
 
-## ✨ Características Principales
-
-- **🏠 Dashboard Financiero**: Visualización gráfica de ingresos vs gastos
-- **💸 Registro de Transacciones**: Gestión completa de ingresos y gastos con categorización
-- **🔄 Transferencias**: Sistema para enviar y recibir dinero entre usuarios
-- **📊 Presupuestos**: Definición de límites por categoría con alertas de excesos
-- **👤 Perfiles Personalizados**: Configuración de moneda preferida y opciones de usuario
-- **🔐 Sistema de Autenticación**: Registro, inicio de sesión y gestión de sesiones
-- **🎨 Interfaz Responsiva**: Diseño adaptable a diferentes dispositivos
+falta la demo
 
 ---
 
-## 🛠️ Tecnologías Utilizadas
+## Características Principales
 
-- **Backend**: Django 5.1, Python 3.9+
+- **Dashboard Financiero**: Visualización gráfica de ingresos vs gastos
+- **Registro de Transacciones**: Gestión completa de ingresos y gastos con categorización
+- **Transferencias**: Sistema para enviar y recibir dinero entre usuarios
+- **Presupuestos**: Definición de límites por categoría con alertas de excesos
+- **Perfiles Personalizados**: Configuración de moneda preferida y opciones de usuario
+- **Sistema de Autenticación**: Registro, inicio de sesión y gestión de sesiones
+- **Interfaz Responsiva**: Diseño adaptable a diferentes dispositivos
+- **Notificaciones**: Alertas por correo electrónico para presupuestos y movimientos importantes
+- **Búsqueda Avanzada**: Filtrado de transacciones por múltiples criterios
+
+---
+
+## Tecnologías Utilizadas
+
+- **Backend**: Django 5, Python 3
 - **Frontend**: HTML5, CSS3, JavaScript, Bootstrap 4.6
 - **Visualización de Datos**: Chart.js
 - **Iconos**: Font Awesome 5
 - **Base de Datos**: SQLite (desarrollo), compatible con MySQL/PostgreSQL (producción)
+- **Testing**: Django Test Framework, Pytest
 
-> ![NOTE]
+> [!NOTE]
 > Este proyecto utiliza una arquitectura MVT (Model-View-Template) típica de Django, pero con una organización modular mejorada.
 
 ---
 
-## 📁 Estructura del Proyecto
+## Estructura del Proyecto
 
 ```
 money-manager-python/
@@ -62,7 +71,7 @@ money-manager-python/
 │   ├── finanzas/            # Plantillas de la aplicación
 │   └── base.html            # Plantilla base
 │
-├── static/                  # Archivos estáticos (CSS, JS, imágenes)
+├── static/                  # Archivos estáticos (CSS, JS)
 │
 ├── manage.py                # Utilidad de línea de comandos
 └── README.md                # Este archivo
@@ -70,7 +79,7 @@ money-manager-python/
 
 ---
 
-## 🚀 Instalación y Configuración
+## Instalación y Configuración
 
 ### Prerrequisitos
 
@@ -93,10 +102,6 @@ cd money-manager-python
 # En Windows
 python -m venv venv
 venv\Scripts\activate
-
-# En macOS/Linux
-python3 -m venv venv
-source venv/bin/activate
 ```
 
 3. **Instalar dependencias**
@@ -123,24 +128,30 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
-> ![TIP]
+> [!TIP]
 > Para un entorno de producción, asegúrate de configurar un servidor web como Nginx o Apache junto con Gunicorn o uWSGI.
 
-
+---
 
 ## 📸 Capturas de Pantalla
 
-*(Reemplazar con capturas reales del proyecto)*
+### Inicio de Sesión 
 
-- **Dashboard Financiero**
-- **Listado de Transacciones**
-- **Formulario de Transferencia**
-- **Panel de Presupuestos**
-- **Perfil de Usuario**
+### Dashboard Financiero
+![Dashboard Financiero](media/dashboard.png)
 
+### Listado de Transacciones
+![Listado de Transacciones](media/transacciones-historial.png)
 
+### Formulario de Transferencia
 
-## 🔧 Características Avanzadas
+### Panel de Presupuestos
+
+### Perfil de Usuario
+
+---
+
+## Características Avanzadas
 
 ### Sistema de Signals
 
@@ -159,8 +170,29 @@ El panel de administración ha sido personalizado para proporcionar:
 - Visualización mejorada con gráficos
 - Resúmenes y estadísticas
 
-> ![TIP]
+> [!TIP]
 > Puedes extender fácilmente los modelos agregando nuevos archivos en la carpeta `models/` sin modificar la estructura existente.
+
+---
+
+## Estado del Proyecto
+
+El proyecto está actualmente **completado** y en fase de mantenimiento. Se aceptan sugerencias y mejoras.
+
+---
+
+## Lecciones Aprendidas y Desafíos
+
+Durante el desarrollo de este proyecto, se aprendieron varias lecciones importantes:
+
+- La importancia de una arquitectura modular para facilitar el mantenimiento
+- Cómo implementar transacciones atómicas en Django
+- La personalización del panel de administración para mejorar la usabilidad
+
+Algunos de los desafíos enfrentados incluyen:
+
+- Garantizar la integridad de los datos durante las transferencias
+- Optimizar las consultas a la base de datos para mejorar el rendimiento
 
 ---
 
@@ -168,8 +200,7 @@ El panel de administración ha sido personalizado para proporcionar:
 
 **Ing. Pontnau, Gonzalo Martín**
 
-💼 [LinkedIn](https://linkedin.com/in/tu-perfil)
-📧 [Email](mailto:tu-email@ejemplo.com)
-🌐 [Portfolio](https://tu-sitio-web.com)
+💼 [LinkedIn](https://linkedin.com/in/gonzalopontnau)
+📧 [Email](mailto:gonzalopontnau@gmail.com)
 
 ---

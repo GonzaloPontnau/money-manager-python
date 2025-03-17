@@ -1,10 +1,7 @@
 # Entornos virtuales
-venv/
-myvenv/
+myenv/
 env/
-.env/
 .venv/
-ENV/
 
 # Archivos de Python
 __pycache__/
@@ -12,6 +9,7 @@ __pycache__/
 *$py.class
 *.so
 .Python
+env/
 build/
 develop-eggs/
 dist/
@@ -23,7 +21,6 @@ lib64/
 parts/
 sdist/
 var/
-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
@@ -33,8 +30,11 @@ wheels/
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
-media/
+media
+
+# Directorios de archivos estáticos
 staticfiles/
+static/admin/
 
 # Configuración sensible
 .env
@@ -50,30 +50,18 @@ money_manager/settings_local.py
 
 # Archivos de dependencias
 node_modules/
-package-lock.json
-yarn.lock
 
 # Archivos de cobertura
-htmlcov/
-.tox/
 .coverage
 .coverage.*
-.cache
-nosetests.xml
 coverage.xml
-*.cover
-.hypothesis/
 
 # Archivos de pruebas
 *.pyc
-test_*.py
 add_test_data.py
 
 # Archivos de configuración
-*.ini
-*.conf
-*.yaml
-*.yml
 settings.py
 
-requirements.txt
+# Vercel
+.vercel

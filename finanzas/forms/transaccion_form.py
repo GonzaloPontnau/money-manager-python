@@ -11,8 +11,8 @@ class TransaccionForm(forms.ModelForm):
         model = Transaccion
         fields = ['fecha', 'monto', 'tipo', 'categoria', 'descripcion', 'comprobante']
         widgets = {
-            'fecha': forms.DateTimeInput(attrs={
-                'type': 'datetime-local',
+            'fecha': forms.DateInput(attrs={
+                'type': 'date',
                 'style': 'background-color: #2D2D3A; color: #E2E2E2; border-color: #3F3F50;'
             }),
             'descripcion': forms.Textarea(attrs={
@@ -99,4 +99,4 @@ class TransaccionForm(forms.ModelForm):
         if commit:
             transaccion.save()
         
-        return transaccion 
+        return transaccion
