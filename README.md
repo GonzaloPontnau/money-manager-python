@@ -1,8 +1,22 @@
 # 🚀 Money Manager - Sistema de Gestión Financiera Personal
 
-![Web]()
-[![Estado del Proyecto](https://img.shields.io/badge/Estado-Completado-success)](https://github.com/tu-usuario/money-manager-python)
-[![Documentación](https://img.shields.io/badge/Documentación-Django-blue)](https://docs.djangoproject.com/)
+[![Demo en vivo](https://img.shields.io/badge/web-online-black?logo=vercel)](https://money-manager-nine-umber.vercel.app/)
+[![Django](https://img.shields.io/badge/docs-Django-white?logo=django)](https://docs.djangoproject.com/)
+[![Python](https://img.shields.io/badge/docs-Python-blue?logo=python)](https://docs.python.org/3/)
+
+## 📸 Demo
+
+### Inicio de Sesión 
+![demo-inicio-de-sesion](https://github.com/user-attachments/assets/fcf3ba73-6a65-4676-8ecc-53ed0bc90e3e)
+
+### Dashboard Financiero
+![demo-dashboard](https://github.com/user-attachments/assets/c9fb37fc-96da-4f89-a0e5-164169e6c77a)
+
+### Registro Ingreso/Gasto
+![demo-ingreso-gasto](https://github.com/user-attachments/assets/d58cea05-0bdc-471b-8161-0cf16a9e653f)
+
+### Formulario de Transferencia
+![demo-transferencia](https://github.com/user-attachments/assets/50f8105d-3f29-47fb-8c3e-f6869b5b3785)
 
 ## Descripción
 
@@ -10,10 +24,6 @@ Money Manager es una aplicación web completa para la gestión de finanzas perso
 
 > [!TIP]
 > Este proyecto fue diseñado con un enfoque modular para facilitar su mantenimiento y expansión.
-
-### Demostración
-
-falta la demo
 
 ---
 
@@ -134,22 +144,6 @@ python manage.py runserver
 
 > [!TIP]
 > Para un entorno de producción, asegúrate de configurar un servidor web como Nginx o Apache junto con Gunicorn o uWSGI.
-
----
-
-## 📸 Capturas de Pantalla
-
-### Inicio de Sesión 
-![Iniciar sesión](media/inicio-sesion.png)
-
-### Dashboard Financiero
-![Dashboard Financiero](media/dashboard.png)
-
-### Listado de Transacciones
-![Listado de Transacciones](media/transacciones-historial.png)
-
-### Formulario de Transferencia
-![Listado de Transacciones](media/formulario-transferencia.png)
 
 ---
 
