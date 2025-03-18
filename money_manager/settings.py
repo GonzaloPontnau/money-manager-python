@@ -61,7 +61,12 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.gzip.GZipMiddleware',  # Comprimir respuestas
+    'finanzas.middleware.CachingMiddleware',  # Nuestro middleware personalizado
 ]
+
+# Configuración para archivos estáticos
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'  # Para versioning de archivos estáticos
 
 # Añadir WhiteNoise solo si estamos en Vercel o si está explícitamente instalado
 try:
@@ -100,21 +105,21 @@ WSGI_APPLICATION = 'money_manager.wsgi.application'
 # Configuración de base de datos dependiente del entorno
 import os
 
-# Detectar si estamos en Vercel
+# Detectar si estoy en Vercel
 ON_VERCEL = os.environ.get('VERCEL', False)
 
 # Configuración de la base de datos
 if ON_VERCEL:
-    # Configuración para Vercel (mantener tu configuración de PostgreSQL)
+    # Configuración para Vercel (configuración de PostgreSQL)
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            # Aquí se mantienen tus configuraciones existentes para Vercel
             'NAME': os.environ.get('POSTGRES_DATABASE', 'verceldb'),
             'USER': os.environ.get('POSTGRES_USER', 'default'),
             'PASSWORD': os.environ.get('POSTGRES_PASSWORD', ''),
             'HOST': os.environ.get('POSTGRES_HOST', 'localhost'),
             'PORT': os.environ.get('POSTGRES_PORT', '5432'),
+            'CONN_MAX_AGE': 60,  # Mantener conexiones activas por 60 segundos
         }
     }
 else:
@@ -123,6 +128,7 @@ else:
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+            'CONN_MAX_AGE': 60,  # Mantener conexiones activas por 60 segundos
         }
     }
 
@@ -248,3 +254,12 @@ if not DEBUG:
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+
+
+# Configuración de caché
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'money-manager-cache',
+    }
+}

@@ -37,8 +37,11 @@ falta la demo
 - **Frontend**: HTML5, CSS3, JavaScript, Bootstrap 4.6
 - **Visualización de Datos**: Chart.js
 - **Iconos**: Font Awesome 5
-- **Base de Datos**: SQLite (desarrollo), compatible con MySQL/PostgreSQL (producción)
+- **Base de Datos**:
+  - **Desarrollo**: SQLite
+  - **Producción**: PostgreSQL en Vercel (anteriormente MySQL)
 - **Testing**: Django Test Framework, Pytest
+- **Despliegue**: Vercel
 
 > [!NOTE]
 > Este proyecto utiliza una arquitectura MVT (Model-View-Template) típica de Django, pero con una organización modular mejorada.
@@ -57,6 +60,7 @@ money-manager-python/
 │   ├── models/              # Modelos de datos (estructura de la BD)
 │   ├── views/               # Vistas y lógica de negocio
 │   ├── signals.py           # Señales para acciones automáticas
+│   ├── middleware.py        # Middleware personalizado para optimizaciones
 │   ├── apps.py              # Configuración de la aplicación
 │   └── urls.py              # Rutas de la aplicación
 │
@@ -92,7 +96,7 @@ money-manager-python/
 1. **Clonar el repositorio**
 
 ```bash
-git clone https://github.com/tu-usuario/money-manager-python.git
+git clone https://github.com/PontnauGonzalo/money-manager-python
 cd money-manager-python
 ```
 
@@ -136,6 +140,7 @@ python manage.py runserver
 ## 📸 Capturas de Pantalla
 
 ### Inicio de Sesión 
+![Iniciar sesión](media/inicio-sesion.png)
 
 ### Dashboard Financiero
 ![Dashboard Financiero](media/dashboard.png)
@@ -144,10 +149,7 @@ python manage.py runserver
 ![Listado de Transacciones](media/transacciones-historial.png)
 
 ### Formulario de Transferencia
-
-### Panel de Presupuestos
-
-### Perfil de Usuario
+![Listado de Transacciones](media/formulario-transferencia.png)
 
 ---
 
@@ -175,6 +177,24 @@ El panel de administración ha sido personalizado para proporcionar:
 
 ---
 
+## Despliegue en Vercel
+
+El proyecto está desplegado en Vercel, aprovechando su plataforma para aplicaciones web. Algunos aspectos importantes del despliegue:
+
+### Migración de Base de Datos
+
+- **Desarrollo**: Inicialmente se utilizaba SQLite para desarrollo local y MySQL para entornos de producción.
+- **Producción actual**: Al migrar a Vercel, se cambió a PostgreSQL debido a su mejor compatibilidad con la plataforma y mayor rendimiento para aplicaciones web.
+- **Adaptación**: El proyecto incluye configuraciones automáticas que detectan el entorno de despliegue y utilizan la base de datos apropiada sin necesidad de modificar el código.
+
+### Optimizaciones Implementadas
+
+- **Middleware de Caché**: middleware personalizado para mejorar el rendimiento mediante caché de recursos estáticos.
+- **Consultas Optimizadas**: Se utilizan `select_related` y `prefetch_related` para reducir el número de consultas a la base de datos.
+- **MutationObserver**: Reemplacé los intervals de sondeo por MutationObserver para mejorar el rendimiento del frontend.
+
+---
+
 ## Estado del Proyecto
 
 El proyecto está actualmente **completado** y en fase de mantenimiento. Se aceptan sugerencias y mejoras.
@@ -183,16 +203,21 @@ El proyecto está actualmente **completado** y en fase de mantenimiento. Se acep
 
 ## Lecciones Aprendidas y Desafíos
 
-Durante el desarrollo de este proyecto, se aprendieron varias lecciones importantes:
-
 - La importancia de una arquitectura modular para facilitar el mantenimiento
 - Cómo implementar transacciones atómicas en Django
 - La personalización del panel de administración para mejorar la usabilidad
+
+### Migración de Base de Datos y Despliegue
+
+- **Portabilidad de Django ORM**: El ORM de Django permitió migrar entre diferentes sistemas de bases de datos (SQLite, MySQL, PostgreSQL) con mínimos cambios de código.
+- **Compatibilidad de Vercel**: Aprendí a configurar aplicaciones Django para Vercel, incluyendo la integración con PostgreSQL.
+- **Uso de Variables de Entorno**: La configuración basada en variables de entorno facilitó el despliegue en distintos entornos sin cambios en el código.
 
 Algunos de los desafíos enfrentados incluyen:
 
 - Garantizar la integridad de los datos durante las transferencias
 - Optimizar las consultas a la base de datos para mejorar el rendimiento
+- Manejar la migración de datos entre diferentes sistemas de bases de datos
 
 ---
 

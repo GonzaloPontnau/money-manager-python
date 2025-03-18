@@ -1,9 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import Sum
+from django.db.models import Sum, Q
 from django.http import JsonResponse
 from django.urls import reverse
+from django.views.decorators.cache import cache_page
 
 from finanzas.models.transaccion import Transaccion
 from finanzas.models.categoria import Categoria
@@ -16,8 +17,8 @@ def lista_transacciones(request):
     tipo = request.GET.get('tipo')
     categoria_id = request.GET.get('categoria')
     
-    # Iniciar con todas las transacciones del usuario
-    transacciones = Transaccion.objects.filter(usuario=request.user)
+    # Iniciar con todas las transacciones del usuario, usando select_related para obtener categorías
+    transacciones = Transaccion.objects.filter(usuario=request.user).select_related('categoria')
     
     # Aplicar filtros si están presentes
     if tipo and tipo in dict(Transaccion.TIPO_CHOICES):
@@ -29,28 +30,32 @@ def lista_transacciones(request):
     # Ordenar por fecha descendente
     transacciones = transacciones.order_by('-fecha')
     
-    # Obtener categorías del usuario para el filtro
-    categorias = Categoria.objects.filter(usuario=request.user)
+    # Obtener categorías del usuario para el filtro (añadir caché)
+    categorias = list(Categoria.objects.filter(usuario=request.user))
     
-    # Calcular totales
-    ingresos = Transaccion.objects.filter(
-        usuario=request.user, 
-        tipo='ingreso'
-    ).aggregate(Sum('monto'))['monto__sum'] or 0
+    # Calcular totales - optimizar con un solo query usando anotaciones
+    totales = Transaccion.objects.filter(
+        usuario=request.user
+    ).values('tipo').annotate(
+        total=Sum('monto')
+    ).order_by('tipo')
     
-    gastos = Transaccion.objects.filter(
-        usuario=request.user, 
-        tipo='gasto'
-    ).aggregate(Sum('monto'))['monto__sum'] or 0
+    ingresos_totales = 0
+    gastos_totales = 0
+    for item in totales:
+        if item['tipo'] == 'ingreso':
+            ingresos_totales = item['total'] or 0
+        elif item['tipo'] == 'gasto':
+            gastos_totales = item['total'] or 0
     
     context = {
         'transacciones': transacciones,
         'categorias': categorias,
         'tipo_seleccionado': tipo,
         'categoria_seleccionada': categoria_id,
-        'ingresos_totales': ingresos,
-        'gastos_totales': gastos,
-        'balance': ingresos - gastos,
+        'ingresos_totales': ingresos_totales,
+        'gastos_totales': gastos_totales,
+        'balance': ingresos_totales - gastos_totales,
     }
     
     return render(request, 'finanzas/transacciones/lista.html', context)
@@ -133,7 +138,9 @@ def detalle_transaccion(request, id):
     
     return render(request, 'finanzas/transacciones/detalle.html', context)
 
+# Añadir caché para categorías por tipo
 @login_required
+@cache_page(60 * 15)  # Caché por 15 minutos
 def filtrar_categorias(request):
     """Vista AJAX para filtrar categorías según el tipo seleccionado"""
     tipo = request.GET.get('tipo', '')
@@ -145,4 +152,4 @@ def filtrar_categorias(request):
             tipo=tipo
         ).values('id', 'nombre'))
     
-    return JsonResponse({'categorias': categorias}) 
+    return JsonResponse({'categorias': categorias})

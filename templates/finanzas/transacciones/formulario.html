@@ -125,7 +125,7 @@
 {% block extrajs %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Aplicar estilos a los campos del formulario
+        // Optimización: eliminar polling innecesario
         const form = document.getElementById('transaccion-form');
         
         if (form) {
@@ -176,11 +176,9 @@
                                 });
                                 
                                 // Re-aplicar estilos después de actualizar las opciones
-                                setTimeout(function() {
-                                    categoriaSelect.style.backgroundColor = '#2D2D3A';
-                                    categoriaSelect.style.color = '#E2E2E2';
-                                    categoriaSelect.style.borderColor = '#3F3F50';
-                                }, 100);
+                                categoriaSelect.style.backgroundColor = '#2D2D3A';
+                                categoriaSelect.style.color = '#E2E2E2';
+                                categoriaSelect.style.borderColor = '#3F3F50';
                             });
                     }
                 });
@@ -201,21 +199,29 @@
                 }
             });
             
-            // Estilos para elementos generados dinámicamente por Bootstrap
-            // Ejecutar repetidamente para asegurar que se apliquen
-            const applyStyles = function() {
-                document.querySelectorAll('input, select, textarea, .form-control, .custom-select, .custom-file-input').forEach(function(el) {
-                    el.style.backgroundColor = '#2D2D3A';
-                    el.style.color = '#E2E2E2';
-                    el.style.borderColor = '#3F3F50';
+            // Usar MutationObserver en lugar de setInterval
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.addedNodes.length) {
+                        mutation.addedNodes.forEach(function(node) {
+                            if (node.nodeType === 1) { // Solo elementos
+                                const elements = node.querySelectorAll ? 
+                                    node.querySelectorAll('input, select, textarea, .form-control, .custom-select, .custom-file-input') : [];
+                                elements.forEach(el => {
+                                    el.style.backgroundColor = '#2D2D3A';
+                                    el.style.color = '#E2E2E2';
+                                    el.style.borderColor = '#3F3F50';
+                                });
+                            }
+                        });
+                    }
                 });
-            };
+            });
             
-            // Aplicar estilos inicialmente
-            applyStyles();
-            
-            // Aplicar cada 100ms para cualquier elemento nuevo
-            setInterval(applyStyles, 100);
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
         }
     });
 </script>
@@ -247,4 +253,4 @@
         border-color: #3F3F50 !important;
     }
 </style>
-{% endblock %} 
+{% endblock %}

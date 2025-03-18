@@ -174,7 +174,7 @@
 {% block extrajs %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Aplicar estilos oscuros a todos los elementos del formulario
+        // Optimización: eliminar polling innecesario y aplicar estilos de una vez
         const form = document.querySelector('form');
         if (form) {
             // Seleccionar todos los inputs, selects y textareas
@@ -186,27 +186,43 @@
                 el.style.borderColor = '#3F3F50';
             });
             
-            // Función para aplicar estilos a elementos dinámicos
-            const applyDarkStyles = function() {
-                document.querySelectorAll('input, select, textarea, .form-control').forEach(el => {
-                    el.style.backgroundColor = '#2D2D3A';
-                    el.style.color = '#E2E2E2';
-                    el.style.borderColor = '#3F3F50';
+            // Aplicar estilos a elementos dinámicos una sola vez (no usar setInterval)
+            document.querySelectorAll('input, select, textarea, .form-control').forEach(el => {
+                el.style.backgroundColor = '#2D2D3A';
+                el.style.color = '#E2E2E2';
+                el.style.borderColor = '#3F3F50';
+            });
+            
+            // Agregar un MutationObserver para detectar nuevos elementos DOM y estilizarlos
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.addedNodes.length) {
+                        mutation.addedNodes.forEach(function(node) {
+                            if (node.nodeType === 1) { // Solo elementos
+                                const elements = node.querySelectorAll ? 
+                                    node.querySelectorAll('input, select, textarea, .form-control') : [];
+                                elements.forEach(el => {
+                                    el.style.backgroundColor = '#2D2D3A';
+                                    el.style.color = '#E2E2E2';
+                                    el.style.borderColor = '#3F3F50';
+                                });
+                            }
+                        });
+                    }
                 });
-            };
+            });
             
-            // Aplicar estilos inicialmente
-            applyDarkStyles();
-            
-            // Continuar aplicando estilos para elementos que pueden ser generados dinámicamente
-            setInterval(applyDarkStyles, 100);
+            // Configurar el observer para que observe cambios en el DOM del formulario
+            observer.observe(form, {
+                childList: true,
+                subtree: true
+            });
         }
     });
 </script>
 
 <!-- Estilos para forzar el tema oscuro en los elementos de formulario -->
 <style>
-    /* Estilos críticos con !important para máxima prioridad */
     input, select, textarea, .form-control, .custom-select {
         background-color: #2D2D3A !important;
         color: #E2E2E2 !important;

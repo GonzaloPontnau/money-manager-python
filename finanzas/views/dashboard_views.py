@@ -1,34 +1,39 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from django.db.models import Sum
+from django.db.models import Sum, Q
+from django.utils.timezone import now, timedelta
+from django.views.decorators.cache import cache_page
+
 from finanzas.models.transaccion import Transaccion
 
 @login_required
 def dashboard_view(request):
-    """Vista principal del dashboard financiero"""
-    # Obtener todas las transacciones del usuario
-    transacciones = Transaccion.objects.filter(usuario=request.user).order_by('-fecha')[:10]
+    """Vista del dashboard principal"""
+    # Optimizar consultas para obtener resúmenes en una sola operación
+    totales = Transaccion.objects.filter(
+        usuario=request.user
+    ).values('tipo').annotate(
+        total=Sum('monto')
+    ).order_by('tipo')
     
-    # Calcular ingresos totales
-    ingresos = Transaccion.objects.filter(
-        usuario=request.user, 
-        tipo='ingreso'
-    ).aggregate(Sum('monto'))['monto__sum'] or 0
+    ingresos_totales = 0
+    gastos_totales = 0
+    for item in totales:
+        if item['tipo'] == 'ingreso':
+            ingresos_totales = item['total'] or 0
+        elif item['tipo'] == 'gasto':
+            gastos_totales = item['total'] or 0
     
-    # Calcular gastos totales
-    gastos = Transaccion.objects.filter(
-        usuario=request.user, 
-        tipo='gasto'
-    ).aggregate(Sum('monto'))['monto__sum'] or 0
-    
-    # Calcular balance
-    balance = ingresos - gastos
+    # Limitar transacciones recientes a un número pequeño y optimizar con select_related
+    transacciones = Transaccion.objects.filter(
+        usuario=request.user
+    ).select_related('categoria').order_by('-fecha')[:5]
     
     context = {
+        'ingresos_totales': ingresos_totales,
+        'gastos_totales': gastos_totales,
+        'balance': ingresos_totales - gastos_totales,
         'transacciones': transacciones,
-        'ingresos_totales': ingresos,
-        'gastos_totales': gastos,
-        'balance': balance,
     }
     
     return render(request, 'finanzas/dashboard.html', context)

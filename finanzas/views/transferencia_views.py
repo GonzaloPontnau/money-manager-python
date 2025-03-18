@@ -13,14 +13,19 @@ from finanzas.forms.transferencia_form import TransferenciaForm
 @login_required
 def lista_transferencias(request):
     """Vista para mostrar un listado de transferencias del usuario"""
-    # Obtener todas las transferencias donde el usuario es emisor o receptor
+    # Optimización: usar select_related para obtener datos de usuario relacionados en una sola consulta
     transferencias = Transferencia.objects.filter(
-        Q(emisor=request.user) | Q(receptor=request.user)
-    ).order_by('-fecha_creacion')
+        emisor=request.user
+    ).select_related('receptor') | Transferencia.objects.filter(
+        receptor=request.user
+    ).select_related('emisor')
     
-    # Separar transferencias enviadas y recibidas
-    enviadas = transferencias.filter(emisor=request.user)
-    recibidas = transferencias.filter(receptor=request.user)
+    # Ordenar por fecha de creación descendente
+    transferencias = transferencias.order_by('-fecha_creacion')
+    
+    # Separa en enviadas y recibidas eficientemente
+    enviadas = [t for t in transferencias if t.emisor == request.user]
+    recibidas = [t for t in transferencias if t.receptor == request.user]
     
     context = {
         'transferencias': transferencias,
@@ -87,9 +92,9 @@ def nueva_transferencia(request):
 @login_required
 def detalle_transferencia(request, uuid):
     """Vista para ver detalles de una transferencia específica"""
-    # Buscar la transferencia por UUID y verificar que el usuario sea parte de ella
+    # Optimización: usar select_related para obtener datos relacionados en una sola consulta
     transferencia = get_object_or_404(
-        Transferencia.objects.filter(
+        Transferencia.objects.select_related('emisor', 'receptor').filter(
             Q(emisor=request.user) | Q(receptor=request.user)
         ),
         uuid=uuid
