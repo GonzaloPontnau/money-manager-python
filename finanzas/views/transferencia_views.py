@@ -79,7 +79,12 @@ def nueva_transferencia(request):
                     # Marcar la transferencia como completada
                     transferencia.completar()
                     
+                    # Mensaje de éxito
                     messages.success(request, f"Transferencia de {transferencia.monto} realizada con éxito a {transferencia.receptor.username}")
+                    
+                    # Mensaje informativo sobre el tiempo de procesamiento
+                    messages.info(request, "El procesamiento completo de la transferencia puede demorar unos minutos. Puedes verificar su estado en cualquier momento.")
+                    
                     return redirect('finanzas:lista_transferencias')
                     
             except Exception as e:
