@@ -118,7 +118,7 @@ if ON_VERCEL:
             'USER': os.environ.get('POSTGRES_USER', 'default'),
             'PASSWORD': os.environ.get('POSTGRES_PASSWORD', ''),
             'HOST': os.environ.get('POSTGRES_HOST', 'localhost'),
-            'PORT': os.environ.get('POSTGRES_PORT', '5432'),
+            'PORT': os.environ.get('POSTGRES_PORT', '6543'),
             'CONN_MAX_AGE': 60,  # Mantener conexiones activas por 60 segundos
         }
     }

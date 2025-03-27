@@ -12,20 +12,11 @@ class Transferencia(models.Model):
     ]
     
     # Identificador único para cada transferencia
-    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True,
-                           help_text="Identificador único para tracking de la transferencia")
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, help_text="Identificador único para tracking de la transferencia")    
     
     # Campos de usuario (emisor y receptor)
-    emisor = models.ForeignKey(
-        User, 
-        on_delete=models.CASCADE,
-        related_name='transferencias_enviadas'
-    )
-    receptor = models.ForeignKey(
-        User, 
-        on_delete=models.CASCADE,
-        related_name='transferencias_recibidas'
-    )
+    emisor = models.ForeignKey( User,  on_delete=models.CASCADE, related_name='transferencias_enviadas')
+    receptor = models.ForeignKey( User,  on_delete=models.CASCADE, related_name='transferencias_recibidas')
     
     # Detalles de la transferencia
     monto = models.DecimalField(max_digits=10, decimal_places=2)
@@ -35,14 +26,11 @@ class Transferencia(models.Model):
     
     # Estado y tracking
     estado = models.CharField(max_length=15, choices=STATUS_CHOICES, default='pending')
-    referencia = models.CharField(max_length=50, blank=True, null=True,
-                               help_text="Código de referencia para la transferencia")
+    referencia = models.CharField(max_length=50, blank=True, null=True, help_text="Código de referencia para la transferencia")
     
     # Para posible integración con API bancaria
-    codigo_respuesta = models.CharField(max_length=50, blank=True, null=True,
-                               help_text="Código de respuesta de la API bancaria")
-    mensaje_respuesta = models.TextField(blank=True, null=True,
-                               help_text="Mensaje de respuesta de la API bancaria")
+    codigo_respuesta = models.CharField(max_length=50, blank=True, null=True, help_text="Código de respuesta de la API bancaria")
+    mensaje_respuesta = models.TextField(blank=True, null=True, help_text="Mensaje de respuesta de la API bancaria")
     
     class Meta:
         verbose_name = "Transferencia"
