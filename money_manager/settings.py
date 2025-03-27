@@ -15,6 +15,61 @@ from pathlib import Path
 import dj_database_url
 from dotenv import load_dotenv
 
+# Añadir este código después de las importaciones existentes, pero antes de definir DATABASES
+import os
+from pathlib import Path
+
+# Determinar el backend de base de datos a utilizar
+def get_database_config():
+    """
+    Configurar la base de datos según las variables de entorno.
+    Soporta Turso si está activado.
+    """
+    # Obtener la configuración básica
+    base_dir = Path(__file__).resolve().parent.parent
+    db_config = {
+        'default': {
+            'NAME': os.path.join(base_dir, 'db.sqlite3'),
+            'TEST': {
+                'NAME': os.path.join(base_dir, 'test_db.sqlite3'),
+            },
+        }
+    }
+    
+    # Si hay una URL de base de datos, usarla (para servicios como Vercel)
+    database_url = os.environ.get('DATABASE_URL')
+    if database_url:
+        # Si se proporciona DATABASE_URL, usamos dj-database-url
+        import dj_database_url
+        db_from_env = dj_database_url.config(default=database_url, conn_max_age=600)
+        db_config['default'].update(db_from_env)
+        print(f"Configuración de base de datos desde DATABASE_URL: {database_url}")
+    
+    # Verificar si debemos usar Turso
+    use_turso = os.environ.get('USE_TURSO', 'False').lower() == 'true'
+    
+    if use_turso:
+        turso_url = os.environ.get('TURSO_URL')
+        turso_auth_token = os.environ.get('TURSO_AUTH_TOKEN')
+        
+        if not turso_url or not turso_auth_token:
+            print("ADVERTENCIA: USE_TURSO está activado pero faltan TURSO_URL o TURSO_AUTH_TOKEN")
+        else:
+            # Configurar para usar nuestro backend personalizado
+            db_config['default']['ENGINE'] = 'money_manager.db_backends.turso'
+            db_config['default']['TURSO_URL'] = turso_url
+            db_config['default']['TURSO_AUTH_TOKEN'] = turso_auth_token
+            print("Usando backend de Turso para la base de datos")
+    else:
+        # Usar SQLite normal
+        db_config['default']['ENGINE'] = 'django.db.backends.sqlite3'
+        print("Usando SQLite estándar para la base de datos")
+    
+    return db_config
+
+# Usar la función para configurar DATABASES
+DATABASES = get_database_config()
+
 # Cargar variables de entorno desde .env si existe
 load_dotenv()
 
