@@ -49,6 +49,11 @@ INSTALLED_APPS = [
     # 'crispy_bootstrap4',  # Bootstrap 4 para crispy-forms
 ]
 
+# Añadir libsql-experimental a las aplicaciones instaladas para asegurar que se carga correctamente
+INSTALLED_APPS += [
+    'turso_integration',  # Aplicación para integrar Turso
+]
+
 # Detectar si estamos en Vercel
 ON_VERCEL = os.environ.get('VERCEL', False)
 
@@ -102,39 +107,17 @@ WSGI_APPLICATION = 'money_manager.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-# Configuración de base de datos dependiente del entorno
-import os
-
-# Detectar si estoy en Vercel
-ON_VERCEL = os.environ.get('VERCEL', False)
-
-# Configuración de la base de datos
-if ON_VERCEL:
-    # Configuración para Vercel (configuración de PostgreSQL)
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.environ.get('POSTGRES_DATABASE', 'verceldb'),
-            'USER': os.environ.get('POSTGRES_USER', 'default'),
-            'PASSWORD': os.environ.get('POSTGRES_PASSWORD', ''),
-            'HOST': os.environ.get('POSTGRES_HOST', 'localhost'),
-            'PORT': os.environ.get('POSTGRES_PORT', '6543'),
-            'CONN_MAX_AGE': 60,  # Mantener conexiones activas por 60 segundos
-        }
+# Configuración simplificada para usar SQLite directamente
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'CONN_MAX_AGE': 60,  # Mantener conexiones activas por 60 segundos
     }
-else:
-    # Configuración para desarrollo local (SQLite)
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-            'CONN_MAX_AGE': 60,  # Mantener conexiones activas por 60 segundos
-        }
-    }
+}
 
-# Si estamos en Vercel o hay una URL de base de datos configurada, usar dj_database_url
-if 'DATABASE_URL' in os.environ:
-    # Detectar automáticamente el tipo de base de datos (MySQL o PostgreSQL) desde la URL
+# Usar dj_database_url si hay una URL configurada y estamos en Vercel
+if ON_VERCEL and 'DATABASE_URL' in os.environ:
     DATABASES['default'] = dj_database_url.config(
         conn_max_age=600,
         conn_health_checks=True,
