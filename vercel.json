@@ -49,6 +49,7 @@
   ],
   "env": {
     "DJANGO_SETTINGS_MODULE": "money_manager.settings",
-    "USE_TURSO": "false"
+    "USE_TURSO": "false",
+    "DISABLE_COLLECTSTATIC": "1"
   }
 }

@@ -15,10 +15,12 @@ logger = logging.getLogger('django.db.backends.turso')
 try:
     import libsql_experimental as libsql
     LIBSQL_AVAILABLE = True
-except ImportError:
+    logger.info(f"libsql_experimental cargado correctamente (versión: {getattr(libsql, '__version__', 'desconocida')})")
+except ImportError as e:
     LIBSQL_AVAILABLE = False
+    error_msg = str(e)
     warnings.warn(
-        "No se pudo importar libsql_experimental. Usando SQLite estándar como fallback. "
+        f"No se pudo importar libsql_experimental: {error_msg}. Usando SQLite estándar como fallback. "
         "Para sincronización con Turso, instala: pip install libsql-experimental"
     )
 
@@ -49,15 +51,25 @@ class DatabaseWrapper(SQLiteDatabaseWrapper):
         logger.info(f"Conectando a Turso en: {turso_url}")
         
         try:
-            conn = libsql.connect(
-                database=conn_params['database'],
-                sync_url=turso_url,
-                auth_token=turso_auth_token
-            )
-            
-            # Sincronizar con Turso
-            conn.sync()
-            logger.info("Conexión establecida y sincronizada con Turso")
+            # Verificar si el API de conexión ha cambiado entre versiones
+            if hasattr(libsql, 'connect'):
+                conn = libsql.connect(
+                    database=conn_params['database'],
+                    sync_url=turso_url,
+                    auth_token=turso_auth_token
+                )
+            else:
+                # Versiones anteriores podrían tener una API diferente
+                logger.warning("Usando API alternativa para conectar con Turso")
+                conn = super().get_new_connection(conn_params)
+                
+            # Verificar si el método sync existe antes de llamarlo
+            if hasattr(conn, 'sync'):
+                conn.sync()
+                logger.info("Conexión establecida y sincronizada con Turso")
+            else:
+                logger.warning("El método 'sync' no está disponible en esta versión de libsql")
+                
             return conn
         except Exception as e:
             logger.error(f"Error al conectar con Turso: {e}")

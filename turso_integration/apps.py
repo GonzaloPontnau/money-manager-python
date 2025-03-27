@@ -26,8 +26,9 @@ class TursoIntegrationConfig(AppConfig):
                 # Intentar cargar libsql_experimental
                 try:
                     import libsql_experimental
-                    print("libsql_experimental cargado correctamente")
-                except ImportError:
-                    print("ERROR: No se pudo cargar libsql_experimental. Instálalo con: pip install libsql-experimental")
+                    print(f"libsql_experimental cargado correctamente (versión: {getattr(libsql_experimental, '__version__', 'desconocida')})")
+                except ImportError as e:
+                    print(f"ERROR: No se pudo cargar libsql_experimental: {str(e)}")
+                    print("Instálalo con: pip install libsql-experimental")
         else:
             print("Integración con Turso desactivada. Usando SQLite estándar.")
