@@ -8,5 +8,4 @@ gunicorn
 sqlparse>=0.4.0
 asgiref>=3.3.0
 pymysql
-# Comentado hasta que se pueda instalar correctamente
-# libsql-experimental==0.1.2
+libsql-experimental==0.1.2
