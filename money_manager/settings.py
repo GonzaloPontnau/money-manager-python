@@ -107,7 +107,12 @@ WSGI_APPLICATION = 'money_manager.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-# Configuración simplificada para usar SQLite directamente
+# Detectar si debemos usar Turso
+USE_TURSO = os.environ.get('USE_TURSO', 'False').lower() == 'true'
+TURSO_URL = os.environ.get('TURSO_URL')
+TURSO_AUTH_TOKEN = os.environ.get('TURSO_AUTH_TOKEN')
+
+# Configuración base para SQLite
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -116,8 +121,18 @@ DATABASES = {
     }
 }
 
-# Usar dj_database_url si hay una URL configurada y estamos en Vercel
-if ON_VERCEL and 'DATABASE_URL' in os.environ:
+# Si Turso está activado y tenemos las credenciales, usar el backend personalizado
+if USE_TURSO and TURSO_URL and TURSO_AUTH_TOKEN:
+    DATABASES['default'] = {
+        'ENGINE': 'money_manager.db_backends.turso',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'TURSO_URL': TURSO_URL,
+        'TURSO_AUTH_TOKEN': TURSO_AUTH_TOKEN,
+        'CONN_MAX_AGE': 60,
+    }
+    print(f"Usando backend de Turso para la base de datos")
+# Si estamos en Vercel y hay una URL de base de datos, usar esa
+elif ON_VERCEL and 'DATABASE_URL' in os.environ:
     DATABASES['default'] = dj_database_url.config(
         conn_max_age=600,
         conn_health_checks=True,
