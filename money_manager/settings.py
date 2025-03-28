@@ -172,7 +172,7 @@ USE_I18N = True
 
 USE_TZ = True
 
-STATIC_URL = '/static/'  # Cambiar de '/staticfiles/' a '/static/'
+STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Configuración adicional para archivos estáticos
@@ -182,10 +182,17 @@ STATICFILES_DIRS = [
 
 # Configuración para entorno de Vercel
 if 'VERCEL' in os.environ:
-    # Aseguramos que los archivos estáticos se sirvan correctamente en Vercel
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    # Configuración de WhiteNoise para Vercel
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
     
-    # Usamos DEBUG False para logs más claros
+    # Para debugging
+    WHITENOISE_AUTOREFRESH = True
+    WHITENOISE_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+    
+    # Optimizaciones
+    WHITENOISE_SKIP_COMPRESS_EXTENSIONS = []  # Comprimir todas las extensiones
+    
+    # Usamos DEBUG False para producción
     DEBUG = False
     
     # Configuración para ver errores

@@ -6,11 +6,16 @@
       "use": "@vercel/python",
       "config": {
         "maxLambdaSize": "15mb",
-        "buildCommand": "sh build_files.sh"
+        "buildCommand": "sh build_files.sh",
+        "includeFiles": ["staticfiles/**"]
       }
     }
   ],
   "routes": [
+    {
+      "src": "/static/(.*)",
+      "dest": "/staticfiles/$1"
+    },
     { 
       "src": "/(.*)", 
       "dest": "money_manager/wsgi.py" 
@@ -18,6 +23,7 @@
   ],
   "env": {
     "DJANGO_SETTINGS_MODULE": "money_manager.settings",
-    "DEBUG": "false"
+    "DEBUG": "false",
+    "PYTHONUNBUFFERED": "1"
   }
 }
