@@ -35,46 +35,45 @@ class DatabaseWrapper(SQLiteDatabaseWrapper):
         Establece una conexión con la base de datos Turso.
         Si libsql no está disponible, usa SQLite estándar.
         """
-        if not LIBSQL_AVAILABLE:
-            # Si libsql no está disponible, usar SQLite estándar y registrar advertencia
-            logger.warning("Usando SQLite estándar sin sincronización con Turso. Instala libsql-experimental para sincronización.")
-            return super().get_new_connection(conn_params)
+        settings_dict = self.settings_dict
+        turso_url = settings_dict.get('TURSO_URL')
+        auth_token = settings_dict.get('TURSO_AUTH_TOKEN')
+        # Obtén el valor de NAME, que podría ser Path o string
+        db_name_value = settings_dict.get('NAME')
+
+        if turso_url and auth_token:
+            if not db_name_value:
+                # Es buena idea requerir NAME para la réplica local
+                raise ImproperlyConfigured("Database 'NAME' must be set for Turso embedded replica backend.")
+
+            # Convertir explícitamente a string si es un objeto Path
+            local_db_path = str(db_name_value)
             
-        # Si llegamos aquí, libsql está disponible
-        turso_url = self.settings_dict.get('TURSO_URL')
-        turso_auth_token = self.settings_dict.get('TURSO_AUTH_TOKEN')
-        
-        if not turso_url or not turso_auth_token:
-            logger.warning("TURSO_URL o TURSO_AUTH_TOKEN no configurados. Usando SQLite sin sincronización.")
-            return super().get_new_connection(conn_params)
-        
-        logger.info(f"Conectando a Turso en: {turso_url}")
-        
-        try:
-            # Verificar si el API de conexión ha cambiado entre versiones
-            if hasattr(libsql, 'connect'):
+            try:
+                print(f"INFO: [Turso Backend] Connecting: db='{local_db_path}', sync_url='{turso_url[:20]}...', token='***'")
                 conn = libsql.connect(
-                    database=conn_params['database'],
+                    database=local_db_path,  # Ahora pasamos un string
                     sync_url=turso_url,
-                    auth_token=turso_auth_token
+                    auth_token=auth_token,
                 )
-            else:
-                # Versiones anteriores podrían tener una API diferente
-                logger.warning("Usando API alternativa para conectar con Turso")
-                conn = super().get_new_connection(conn_params)
-                
-            # Verificar si el método sync existe antes de llamarlo
-            if hasattr(conn, 'sync'):
-                conn.sync()
-                logger.info("Conexión establecida y sincronizada con Turso")
-            else:
-                logger.warning("El método 'sync' no está disponible en esta versión de libsql")
-                
-            return conn
-        except Exception as e:
-            logger.error(f"Error al conectar con Turso: {e}")
-            logger.warning("Fallback a SQLite local")
-            return super().get_new_connection(conn_params)
+                print("INFO: [Turso Backend] Connection successful.")
+                return conn
+            except Exception as e:
+                print(f"ERROR: [Turso Backend] Error connecting to Turso: {e}", file=sys.stderr)
+                raise OperationalError(f"Failed to connect to Turso: {e}") from e
+        else:
+            # Lógica de fallback
+            print("WARN: [Turso Backend] Turso URL/Token missing. Falling back to SQLite.")
+            # Convertir también el parámetro database a string en el fallback
+            fallback_params = conn_params.copy()
+            if 'database' in fallback_params and hasattr(fallback_params['database'], '__fspath__'):
+                fallback_params['database'] = str(fallback_params['database'])
+            
+            try:
+                return super().get_new_connection(fallback_params)
+            except Exception as fallback_e:
+                print(f"ERROR: [Turso Backend] Fallback connection failed: {fallback_e}", file=sys.stderr)
+                raise OperationalError(f"Fallback connection failed: {fallback_e}") from fallback_e
     
     def _set_autocommit(self, autocommit):
         """

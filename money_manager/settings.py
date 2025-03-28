@@ -11,86 +11,119 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 import os
-from pathlib import Path
 import dj_database_url
+from pathlib import Path
 from dotenv import load_dotenv
 
-# Añadir este código después de las importaciones existentes, pero antes de definir DATABASES
-import os
-from pathlib import Path
-
-# Determinar el backend de base de datos a utilizar
-def get_database_config():
-    """
-    Configurar la base de datos según las variables de entorno.
-    Soporta Turso si está activado.
-    """
-    # Obtener la configuración básica
-    base_dir = Path(__file__).resolve().parent.parent
-    db_config = {
-        'default': {
-            'NAME': os.path.join(base_dir, 'db.sqlite3'),
-            'TEST': {
-                'NAME': os.path.join(base_dir, 'test_db.sqlite3'),
-            },
-        }
-    }
-    
-    # Si hay una URL de base de datos, usarla (para servicios como Vercel)
-    database_url = os.environ.get('DATABASE_URL')
-    if database_url:
-        # Si se proporciona DATABASE_URL, usamos dj-database-url
-        import dj_database_url
-        db_from_env = dj_database_url.config(default=database_url, conn_max_age=600)
-        db_config['default'].update(db_from_env)
-        print(f"Configuración de base de datos desde DATABASE_URL: {database_url}")
-    
-    # Verificar si debemos usar Turso
-    use_turso = os.environ.get('USE_TURSO', 'False').lower() == 'true'
-    
-    if use_turso:
-        turso_url = os.environ.get('TURSO_URL')
-        turso_auth_token = os.environ.get('TURSO_AUTH_TOKEN')
-        
-        if not turso_url or not turso_auth_token:
-            print("ADVERTENCIA: USE_TURSO está activado pero faltan TURSO_URL o TURSO_AUTH_TOKEN")
-        else:
-            # Configurar para usar nuestro backend personalizado
-            db_config['default']['ENGINE'] = 'money_manager.db_backends.turso'
-            db_config['default']['TURSO_URL'] = turso_url
-            db_config['default']['TURSO_AUTH_TOKEN'] = turso_auth_token
-            print("Usando backend de Turso para la base de datos")
-    else:
-        # Usar SQLite normal
-        db_config['default']['ENGINE'] = 'django.db.backends.sqlite3'
-        print("Usando SQLite estándar para la base de datos")
-    
-    return db_config
-
-# Usar la función para configurar DATABASES
-DATABASES = get_database_config()
-
-# Cargar variables de entorno desde .env si existe
-load_dotenv()
-
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(os.path.join(BASE_DIR, '.env'))  # Carga .env primero si existe
 
+# Detectar entorno Vercel
+ON_VERCEL = os.environ.get('VERCEL') == '1'
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
+# Determinar si usar Turso
+USE_TURSO = os.environ.get('USE_TURSO', 'False').lower() == 'true'
+TURSO_URL = os.environ.get('TURSO_URL')
+TURSO_AUTH_TOKEN = os.environ.get('TURSO_AUTH_TOKEN')
+DATABASE_URL = os.environ.get('DATABASE_URL')
+
+# Configuración por defecto (SQLite local)
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+        'CONN_MAX_AGE': 600,  # Buena práctica mantenerlo
+    }
+}
+
+# 1. Prioridad: Usar Turso si está activado y configurado
+if USE_TURSO:
+    if TURSO_URL and TURSO_AUTH_TOKEN:
+        print("INFO: Configurando base de datos para usar Turso.")
+        DATABASES['default'] = {
+            'ENGINE': 'money_manager.db_backends.turso',
+            # Usar /tmp para el archivo de réplica local en Vercel
+            'NAME': '/tmp/local_replica.db3' if ON_VERCEL else BASE_DIR / 'local_replica.db3',
+            'TURSO_URL': TURSO_URL,
+            'TURSO_AUTH_TOKEN': TURSO_AUTH_TOKEN,
+            'CONN_MAX_AGE': 600,
+        }
+    else:
+        print("ADVERTENCIA: USE_TURSO=true pero faltan TURSO_URL o TURSO_AUTH_TOKEN. Usando SQLite local.")
+
+# 2. Si no se usa Turso, pero existe DATABASE_URL, usar dj_database_url
+elif DATABASE_URL:
+    print(f"INFO: Configurando base de datos desde DATABASE_URL: {DATABASE_URL[:30]}...")
+    db_from_env = dj_database_url.config(
+        default=DATABASE_URL,
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
+
+    # Corrección específica para SQLite vía URL para evitar errores con SSL o path
+    if db_from_env.get('ENGINE') == 'django.db.backends.sqlite3':
+        # Si es SQLite en Vercel vía URL, forzar /tmp si el path no es absoluto
+        db_name = db_from_env.get('NAME', '')
+        if ON_VERCEL and db_name and not os.path.isabs(db_name):
+            print(f"WARN: SQLite DB name '{db_name}' no es absoluto en Vercel, usando '/tmp/{db_name}'")
+            db_from_env['NAME'] = f'/tmp/{os.path.basename(db_name)}'  # Ponerlo en /tmp
+
+        # Eliminar opciones incompatibles con SQLite
+        if 'OPTIONS' in db_from_env:
+            for param in ['sslmode', 'ssl_require', 'ssl_ca', 'ssl_cert', 'ssl_key']:
+                if param in db_from_env['OPTIONS']:
+                    del db_from_env['OPTIONS'][param]
+            # Si OPTIONS queda vacío, eliminarlo
+            if not db_from_env['OPTIONS']:
+                del db_from_env['OPTIONS']
+
+    DATABASES['default'].update(db_from_env)
+
+    # Soporte PyMySQL si es MySQL
+    if DATABASES['default']['ENGINE'] == 'django.db.backends.mysql':
+        try:
+            import pymysql
+            pymysql.install_as_MySQLdb()
+            print("INFO: PyMySQL instalado como driver MySQL.")
+        except ImportError:
+            print("ADVERTENCIA: El backend es MySQL pero pymysql no está instalado.")
+
+# 3. Si estamos en Vercel, no se usó Turso ni DATABASE_URL, usar SQLite en /tmp por defecto
+elif ON_VERCEL:
+    print("INFO: Entorno Vercel detectado sin Turso/DATABASE_URL. Usando SQLite en /tmp por defecto.")
+    DATABASES['default'] = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': '/tmp/default_vercel.db3',  # Ruta escribible
+        'CONN_MAX_AGE': 600,
+    }
+
+# 4. Si no se usa Turso ni DATABASE_URL, ya está configurado SQLite local (por defecto)
+else:
+    print("INFO: Usando configuración de base de datos SQLite local por defecto.")
+
+# Imprimir el motor final para depuración
+print(f"INFO: Motor de base de datos final: {DATABASES['default']['ENGINE']}")
+print(f"INFO: Nombre/Path de base de datos final: {DATABASES['default'].get('NAME')}")
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY', 'ZteozxDKhtDSmUxxWnRaK0qt4-osWirNtPnhHrhTbaKS-A5A6DhFsKSiCtz_KxAFrKw')
+SECRET_KEY = os.environ.get('SECRET_KEY', 'una-clave-secreta-por-defecto-solo-para-desarrollo')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# Temporalmente habilitamos DEBUG para diagnosticar errores
-DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
+DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.vercel.app', '.now.sh']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+VERCEL_URL = os.environ.get('VERCEL_URL')
+if VERCEL_URL:
+    from urllib.parse import urlparse
+    parsed_url = urlparse(f"https://{VERCEL_URL}")
+    hostname = parsed_url.hostname
+    if hostname:
+        ALLOWED_HOSTS.append(hostname)
 
-
-# Application definition
+# IMPORTANTE para POST en HTTPS (Login/Registro en Vercel)
+CSRF_TRUSTED_ORIGINS = []
+if VERCEL_URL:
+    CSRF_TRUSTED_ORIGINS.append(f"https://{VERCEL_URL}")
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -100,21 +133,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'finanzas.apps.FinanzasConfig',  # Nuestra aplicación
-    # 'crispy_forms',  # Para formularios con mejor aspecto
-    # 'crispy_bootstrap4',  # Bootstrap 4 para crispy-forms
-]
-
-# Añadir libsql-experimental a las aplicaciones instaladas para asegurar que se carga correctamente
-INSTALLED_APPS += [
     'turso_integration',  # Aplicación para integrar Turso
 ]
 
-# Detectar si estamos en Vercel
-ON_VERCEL = os.environ.get('VERCEL', False)
-
-# Lista base de middleware
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # WhiteNoise debe ir JUSTO DESPUÉS de SecurityMiddleware
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -124,19 +148,6 @@ MIDDLEWARE = [
     'django.middleware.gzip.GZipMiddleware',  # Comprimir respuestas
     'finanzas.middleware.CachingMiddleware',  # Nuestro middleware personalizado
 ]
-
-# Configuración para archivos estáticos
-STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'  # Para versioning de archivos estáticos
-
-# Añadir WhiteNoise solo si estamos en Vercel o si está explícitamente instalado
-try:
-    import whitenoise
-    MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
-    if not DEBUG:
-        STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-except ImportError:
-    # WhiteNoise no está instalado, usamos el storage predeterminado
-    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
 ROOT_URLCONF = 'money_manager.urls'
 
@@ -158,51 +169,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'money_manager.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
-# Detectar si debemos usar Turso
-USE_TURSO = os.environ.get('USE_TURSO', 'False').lower() == 'true'
-TURSO_URL = os.environ.get('TURSO_URL')
-TURSO_AUTH_TOKEN = os.environ.get('TURSO_AUTH_TOKEN')
-
-# Configuración base para SQLite
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        'CONN_MAX_AGE': 60,  # Mantener conexiones activas por 60 segundos
-    }
-}
-
-# Si Turso está activado y tenemos las credenciales, usar el backend personalizado
-if USE_TURSO and TURSO_URL and TURSO_AUTH_TOKEN:
-    DATABASES['default'] = {
-        'ENGINE': 'money_manager.db_backends.turso',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        'TURSO_URL': TURSO_URL,
-        'TURSO_AUTH_TOKEN': TURSO_AUTH_TOKEN,
-        'CONN_MAX_AGE': 60,
-    }
-    print(f"Usando backend de Turso para la base de datos")
-# Si estamos en Vercel y hay una URL de base de datos, usar esa
-elif ON_VERCEL and 'DATABASE_URL' in os.environ:
-    DATABASES['default'] = dj_database_url.config(
-        conn_max_age=600,
-        conn_health_checks=True,
-        ssl_require=True
-    )
-    
-    # Si es MySQL, usar PyMySQL como driver
-    if DATABASES['default']['ENGINE'] == 'django.db.backends.mysql':
-        import pymysql
-        pymysql.install_as_MySQLdb()
-
-
-# Password validation
-# https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -218,10 +184,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
-# Internationalization
-# https://docs.djangoproject.com/en/5.1/topics/i18n/
-
 LANGUAGE_CODE = 'es-es'
 
 TIME_ZONE = 'Europe/Madrid'
@@ -230,86 +192,32 @@ USE_I18N = True
 
 USE_TZ = True
 
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [BASE_DIR / 'static']
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.1/howto/static-files/
-
-STATIC_URL = '/staticfiles/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-
-# Configuración adicional para archivos estáticos
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
-]
-
-# Configuración para entorno de Vercel
-if 'VERCEL' in os.environ:
-    # Aseguramos que los archivos estáticos se sirvan correctamente en Vercel
+# Usar CompressedManifestStaticFilesStorage si WhiteNoise está activo y DEBUG=False
+if not DEBUG:
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+else:
     STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
-    
-    # Usamos DEBUG False para logs más claros
-    DEBUG = False
-    
-    # Configuración para ver errores
-    LOGGING = {
-        'version': 1,
-        'disable_existing_loggers': False,
-        'handlers': {
-            'console': {
-                'class': 'logging.StreamHandler',
-            },
-        },
-        'loggers': {
-            'django': {
-                'handlers': ['console'],
-                'level': 'ERROR',
-            },
-            'django.request': {
-                'handlers': ['console'],
-                'level': 'DEBUG',
-                'propagate': False,
-            },
-            'django.template': {
-                'handlers': ['console'],
-                'level': 'DEBUG',
-                'propagate': False,
-            },
-            'django.staticfiles': {
-                'handlers': ['console'],
-                'level': 'DEBUG',
-                'propagate': False,
-            },
-        },
-    }
 
-# Archivos de medios (subidos por usuarios)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# Crispy Forms (comentado temporalmente)
-# CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap4"
-# CRISPY_TEMPLATE_PACK = 'bootstrap4'
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Login URL
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
-# Configuraciones adicionales de seguridad para producción
+# Configuraciones de seguridad para producción
 if not DEBUG:
-    # HTTPS/SSL
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
 
-
-# Configuración de caché
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
