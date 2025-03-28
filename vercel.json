@@ -7,15 +7,14 @@
       "config": {
         "maxLambdaSize": "15mb",
         "buildCommand": "sh build_files.sh",
-        "includeFiles": ["staticfiles/**"]
+        "includeFiles": [
+            "staticfiles/**",
+            "templates/**"
+         ] 
       }
     }
   ],
   "routes": [
-    {
-      "src": "/static/(.*)",
-      "dest": "/staticfiles/$1"
-    },
     { 
       "src": "/(.*)", 
       "dest": "money_manager/wsgi.py" 
