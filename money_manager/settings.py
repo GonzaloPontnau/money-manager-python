@@ -21,10 +21,6 @@ load_dotenv(os.path.join(BASE_DIR, '.env'))  # Carga .env primero si existe
 # Detectar entorno Vercel
 ON_VERCEL = os.environ.get('VERCEL') == '1'
 
-# Determinar si usar Turso
-USE_TURSO = os.environ.get('USE_TURSO', 'False').lower() == 'true'
-TURSO_URL = os.environ.get('TURSO_URL')
-TURSO_AUTH_TOKEN = os.environ.get('TURSO_AUTH_TOKEN')
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
 # Configuración por defecto (SQLite local)
@@ -36,23 +32,8 @@ DATABASES = {
     }
 }
 
-# 1. Prioridad: Usar Turso si está activado y configurado
-if USE_TURSO:
-    if TURSO_URL and TURSO_AUTH_TOKEN:
-        print("INFO: Configurando base de datos para usar Turso.")
-        DATABASES['default'] = {
-            'ENGINE': 'money_manager.db_backends.turso',
-            # Usar /tmp para el archivo de réplica local en Vercel
-            'NAME': '/tmp/local_replica.db3' if ON_VERCEL else BASE_DIR / 'local_replica.db3',
-            'TURSO_URL': TURSO_URL,
-            'TURSO_AUTH_TOKEN': TURSO_AUTH_TOKEN,
-            'CONN_MAX_AGE': 600,
-        }
-    else:
-        print("ADVERTENCIA: USE_TURSO=true pero faltan TURSO_URL o TURSO_AUTH_TOKEN. Usando SQLite local.")
-
-# 2. Si no se usa Turso, pero existe DATABASE_URL, usar dj_database_url
-elif DATABASE_URL:
+# Si existe DATABASE_URL, usar dj_database_url
+if DATABASE_URL:
     print(f"INFO: Configurando base de datos desde DATABASE_URL: {DATABASE_URL[:30]}...")
     db_from_env = dj_database_url.config(
         default=DATABASE_URL,
@@ -88,16 +69,16 @@ elif DATABASE_URL:
         except ImportError:
             print("ADVERTENCIA: El backend es MySQL pero pymysql no está instalado.")
 
-# 3. Si estamos en Vercel, no se usó Turso ni DATABASE_URL, usar SQLite en /tmp por defecto
+# Si estamos en Vercel, y no se usó DATABASE_URL, usar SQLite en /tmp por defecto
 elif ON_VERCEL:
-    print("INFO: Entorno Vercel detectado sin Turso/DATABASE_URL. Usando SQLite en /tmp por defecto.")
+    print("INFO: Entorno Vercel detectado sin DATABASE_URL. Usando SQLite en /tmp por defecto.")
     DATABASES['default'] = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': '/tmp/default_vercel.db3',  # Ruta escribible
         'CONN_MAX_AGE': 600,
     }
 
-# 4. Si no se usa Turso ni DATABASE_URL, ya está configurado SQLite local (por defecto)
+# Si no se usa DATABASE_URL, ya está configurado SQLite local (por defecto)
 else:
     print("INFO: Usando configuración de base de datos SQLite local por defecto.")
 
@@ -133,7 +114,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'finanzas.apps.FinanzasConfig',  # Nuestra aplicación
-    'turso_integration',  # Aplicación para integrar Turso
 ]
 
 MIDDLEWARE = [
@@ -192,7 +172,7 @@ USE_I18N = True
 
 USE_TZ = True
 
-STATIC_URL = '/staticfiles/'
+STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Configuración adicional para archivos estáticos

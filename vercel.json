@@ -7,13 +7,6 @@
       "config": {
         "maxLambdaSize": "15mb"
       }
-    },
-    {
-      "src": "build_files.sh",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "staticfiles"
-      }
     }
   ],
   "routes": [
@@ -49,7 +42,6 @@
   ],
   "env": {
     "DJANGO_SETTINGS_MODULE": "money_manager.settings",
-    "USE_TURSO": "false",
-    "DISABLE_COLLECTSTATIC": "1"
+    "DEBUG": "false"
   }
 }
