@@ -93,18 +93,36 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'una-clave-secreta-por-defecto-solo-pa
 DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
-VERCEL_URL = os.environ.get('VERCEL_URL')
-if VERCEL_URL:
-    from urllib.parse import urlparse
-    parsed_url = urlparse(f"https://{VERCEL_URL}")
-    hostname = parsed_url.hostname
-    if hostname:
-        ALLOWED_HOSTS.append(hostname)
+PRODUCTION_HOSTNAME = 'money-manager-nine-umber.vercel.app'
+if PRODUCTION_HOSTNAME:
+    ALLOWED_HOSTS.append(PRODUCTION_HOSTNAME)
+
+VERCEL_DEPLOYMENT_URL = os.environ.get('VERCEL_URL')
+if VERCEL_DEPLOYMENT_URL:
+    try:
+        from urllib.parse import urlparse
+        hostname = urlparse(f"https://{VERCEL_DEPLOYMENT_URL}").hostname
+        if hostname and hostname not in ALLOWED_HOSTS:
+            ALLOWED_HOSTS.append(hostname)
+    except Exception as e:
+        print(f"WARN: Could not parse VERCEL_URL for ALLOWED_HOSTS: {e}")
 
 # IMPORTANTE para POST en HTTPS (Login/Registro en Vercel)
 CSRF_TRUSTED_ORIGINS = []
-if VERCEL_URL:
-    CSRF_TRUSTED_ORIGINS.append(f"https://{VERCEL_URL}")
+if PRODUCTION_HOSTNAME:
+    CSRF_TRUSTED_ORIGINS.append(f"https://{PRODUCTION_HOSTNAME}")
+
+if VERCEL_DEPLOYMENT_URL:
+    try:
+        from urllib.parse import urlparse
+        origin = f"https://{urlparse(f'https://{VERCEL_DEPLOYMENT_URL}').hostname}"
+        if origin not in CSRF_TRUSTED_ORIGINS:
+            CSRF_TRUSTED_ORIGINS.append(origin)
+    except Exception as e:
+        print(f"WARN: Could not parse VERCEL_URL for CSRF_TRUSTED_ORIGINS: {e}")
+
+print(f"DEBUG: Final ALLOWED_HOSTS: {ALLOWED_HOSTS}")
+print(f"DEBUG: Final CSRF_TRUSTED_ORIGINS: {CSRF_TRUSTED_ORIGINS}")
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -175,27 +193,14 @@ USE_TZ = True
 STATIC_URL = '/staticfiles/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# Configuración adicional para archivos estáticos
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 
-# Configuración para entorno de Vercel
-if 'VERCEL' in os.environ:
-    # Configuración de WhiteNoise para Vercel
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
-    
-    # Para debugging
-    WHITENOISE_AUTOREFRESH = True
-    WHITENOISE_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-    
-    # Optimizaciones
+if ON_VERCEL:
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
     WHITENOISE_SKIP_COMPRESS_EXTENSIONS = []  # Comprimir todas las extensiones
-    
-    # Usamos DEBUG False para producción
     DEBUG = False
-    
-    # Configuración para ver errores
     LOGGING = {
         'version': 1,
         'disable_existing_loggers': False,
@@ -227,27 +232,21 @@ if 'VERCEL' in os.environ:
         },
     }
 
-# Archivos de medios (subidos por usuarios)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Login URL
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
-# Configuraciones adicionales de seguridad para producción
 if not DEBUG:
-    # HTTPS/SSL
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
 
-
-# Configuración de caché
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
