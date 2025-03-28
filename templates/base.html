@@ -6,6 +6,10 @@
     <title>{% block title %}Money Manager{% endblock %}</title>
     
     {% load static %}
+    <!-- Precargar recursos críticos -->
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" as="style">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" as="style">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" as="script">
     
     <!-- Bootstrap 4 CDN -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
@@ -13,13 +17,80 @@
     <!-- Font Awesome para iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     
-    <!-- CSS Principal -->
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}"> 
+    <!-- Cargar estilos CSS con defer -->
+    <link rel="stylesheet" href="{% static 'styles.css' %}?v=1.0.3">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=1.0.3">
+    <!-- Fallback para Vercel -->
+    <link rel="stylesheet" href="{% static 'css/vercel-fallback.css' %}?v=1.0.2">
     
-    <!-- Favicon -->
-    <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
+    <!-- Script de fallback mejorado -->
+    <script>
+        (function() {
+            // Optimización: verificar una sola vez y cargar solo si es necesario
+            var stylesLoaded = false;
+            function checkStylesLoaded() {
+                // Simple prueba para ver si los estilos se cargaron
+                var testElem = document.createElement('div');
+                testElem.className = 'test-styles';
+                testElem.style.display = 'none';
+                document.body.appendChild(testElem);
+                var styles = window.getComputedStyle(testElem);
+                stylesLoaded = styles.backgroundColor !== 'rgb(255, 255, 255)'; // Si los estilos están cargados, el color de fondo no será blanco
+                document.body.removeChild(testElem);
+                return stylesLoaded;
+            }
+            
+            window.addEventListener('load', function() {
+                setTimeout(function() {
+                    if (!checkStylesLoaded()) {
+                        console.log('Cargando estilos de respaldo');
+                        [
+                            '/static/styles.css?v=1.0.3',
+                            '/static/css/styles.css?v=1.0.3',
+                            '/css/styles.css?v=1.0.3',
+                            '/static/css/vercel-fallback.css?v=1.0.2'
+                        ].forEach(function(href) {
+                            var link = document.createElement('link');
+                            link.rel = 'stylesheet';
+                            link.href = href;
+                            document.head.appendChild(link);
+                        });
+                    }
+                }, 500);
+            });
+        })();
+    </script>
+    
+    <!-- Estilos críticos mínimos solo como fallback -->
+    <style>
+        /* Estilos críticos para la primera renderización */
+        body {
+            background-color: #1A1A25;
+            color: #E2E2E2;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            opacity: 0;
+            animation: fadeIn 0.3s forwards;
+            animation-delay: 0.1s;
+        }
+        
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+        
+        /* Estilos cruciales para input oscuros - alta prioridad */
+        input, select, textarea, .form-control {
+            background-color: #2D2D3A !important;
+            color: #E2E2E2 !important;
+            border-color: #3F3F50 !important;
+        }
+    </style>
     
     {% block extracss %}{% endblock %}
+    
+    <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
+    
+    <!-- Cargar jQuery en el head para evitar bloqueo de rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" defer></script>
 </head>
 <body>
     <header>
@@ -51,10 +122,14 @@
             <div class="messages">
                 {% for message in messages %}
                     <div class="message {{ message.tags }}">
-                        {% if message.tags == 'success' %} <i class="fas fa-check-circle mr-2"></i> 
-                        {% elif message.tags == 'error' %} <i class="fas fa-exclamation-circle mr-2"></i> 
-                        {% elif message.tags == 'warning' %} <i class="fas fa-exclamation-triangle mr-2"></i> 
-                        {% elif message.tags == 'info' %} <i class="fas fa-info-circle mr-2"></i> 
+                        {% if message.tags == 'success' %}
+                            <i class="fas fa-check-circle mr-2"></i>
+                        {% elif message.tags == 'error' %}
+                            <i class="fas fa-exclamation-circle mr-2"></i>
+                        {% elif message.tags == 'warning' %}
+                            <i class="fas fa-exclamation-triangle mr-2"></i>
+                        {% elif message.tags == 'info' %}
+                            <i class="fas fa-info-circle mr-2"></i>
                         {% endif %}
                         {{ message }}
                     </div>
@@ -68,12 +143,11 @@
     <footer>
         <p>
             <i class="fas fa-code mr-2"></i> 
-            © {% now "Y" %} Desarrollado por Ing. Pontnau, Gonzalo Martín
+            &copy; {% now "Y" %} Desarrollado por Ing. Pontnau, Gonzalo Martín
         </p>
     </footer>
     
-    <!-- JavaScript necesario al final del body -->
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" defer></script>
+    <!-- JavaScript necesario - cargar con defer para no bloquear -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" defer></script>
     {% block extrajs %}{% endblock %}
 </body>
