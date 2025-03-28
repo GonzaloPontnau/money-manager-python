@@ -32,7 +32,7 @@ DATABASES = {
     }
 }
 
-# Si existe DATABASE_URL, usar dj_database_url
+# 1. Prioridad: Usar DATABASE_URL si está disponible
 if DATABASE_URL:
     print(f"INFO: Configurando base de datos desde DATABASE_URL: {DATABASE_URL[:30]}...")
     db_from_env = dj_database_url.config(
@@ -46,7 +46,7 @@ if DATABASE_URL:
         # Si es SQLite en Vercel vía URL, forzar /tmp si el path no es absoluto
         db_name = db_from_env.get('NAME', '')
         if ON_VERCEL and db_name and not os.path.isabs(db_name):
-            print(f"WARN: SQLite DB name '{db_name}' no es absoluto en Vercel, usando '/tmp/{db_name}'")
+            print(f"WARN: SQLite DB name '{db_name}' no es absoluto en Vercel, usando '/tmp/{os.path.basename(db_name)}'")
             db_from_env['NAME'] = f'/tmp/{os.path.basename(db_name)}'  # Ponerlo en /tmp
 
         # Eliminar opciones incompatibles con SQLite
@@ -69,7 +69,7 @@ if DATABASE_URL:
         except ImportError:
             print("ADVERTENCIA: El backend es MySQL pero pymysql no está instalado.")
 
-# Si estamos en Vercel, y no se usó DATABASE_URL, usar SQLite en /tmp por defecto
+# 2. Si estamos en Vercel sin DATABASE_URL, usar SQLite en /tmp
 elif ON_VERCEL:
     print("INFO: Entorno Vercel detectado sin DATABASE_URL. Usando SQLite en /tmp por defecto.")
     DATABASES['default'] = {
@@ -78,7 +78,7 @@ elif ON_VERCEL:
         'CONN_MAX_AGE': 600,
     }
 
-# Si no se usa DATABASE_URL, ya está configurado SQLite local (por defecto)
+# 3. De lo contrario, ya está configurado SQLite local (por defecto)
 else:
     print("INFO: Usando configuración de base de datos SQLite local por defecto.")
 
@@ -172,16 +172,13 @@ USE_I18N = True
 
 USE_TZ = True
 
-STATIC_URL = '/static/'  # Cambiar '/staticfiles/' a '/static/'
+STATIC_URL = '/staticfiles/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Configuración adicional para archivos estáticos
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
-
-# Añadir configuración adicional para WhiteNoise
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Configuración para entorno de Vercel
 if 'VERCEL' in os.environ:

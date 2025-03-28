@@ -32,7 +32,6 @@ def db_status(request):
             "status": "ok" if result and result[0] == 1 else "error",
             "message": "Base de datos conectada correctamente",
             "engine": connection.vendor,
-            "is_turso": connection.vendor == 'turso'
         }
     except Exception as e:
         db_info = {
