@@ -2,49 +2,18 @@
   "version": 2,
   "builds": [
     {
-      "src": "build_files.sh",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "staticfiles"
-      }
-    },
-    {
       "src": "money_manager/wsgi.py",
       "use": "@vercel/python",
       "config": {
-        "maxLambdaSize": "15mb"
+        "maxLambdaSize": "15mb",
+        "buildCommand": "sh build_files.sh"
       }
     }
   ],
   "routes": [
-    {
-      "src": "/static/(.*)",
-      "dest": "/staticfiles/$1",
-      "headers": {
-        "cache-control": "public, max-age=31536000, immutable"
-      }
-    },
-    {
-      "src": "/(styles\\.css)",
-      "dest": "/staticfiles/css/styles.css",
-      "headers": {
-        "cache-control": "public, max-age=31536000, immutable"
-      }
-    },
-    {
-      "src": "/css/(.*\\.css)",
-      "dest": "/staticfiles/css/$1",
-      "headers": {
-        "cache-control": "public, max-age=31536000, immutable"
-      }
-    },
-    {
-      "src": "/favicon.ico",
-      "dest": "/staticfiles/favicon.ico"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "money_manager/wsgi.py"
+    { 
+      "src": "/(.*)", 
+      "dest": "money_manager/wsgi.py" 
     }
   ],
   "env": {

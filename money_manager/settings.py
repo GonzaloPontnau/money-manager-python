@@ -183,7 +183,7 @@ STATICFILES_DIRS = [
 # Configuración para entorno de Vercel
 if 'VERCEL' in os.environ:
     # Aseguramos que los archivos estáticos se sirvan correctamente en Vercel
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
     
     # Usamos DEBUG False para logs más claros
     DEBUG = False
