@@ -192,32 +192,75 @@ USE_I18N = True
 
 USE_TZ = True
 
-STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_URL = '/staticfiles/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# Usar CompressedManifestStaticFilesStorage si WhiteNoise está activo y DEBUG=False
-if not DEBUG:
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-else:
+# Configuración adicional para archivos estáticos
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
+
+# Configuración para entorno de Vercel
+if 'VERCEL' in os.environ:
+    # Aseguramos que los archivos estáticos se sirvan correctamente en Vercel
     STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+    
+    # Usamos DEBUG False para logs más claros
+    DEBUG = False
+    
+    # Configuración para ver errores
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'handlers': {
+            'console': {
+                'class': 'logging.StreamHandler',
+            },
+        },
+        'loggers': {
+            'django': {
+                'handlers': ['console'],
+                'level': 'ERROR',
+            },
+            'django.request': {
+                'handlers': ['console'],
+                'level': 'DEBUG',
+                'propagate': False,
+            },
+            'django.template': {
+                'handlers': ['console'],
+                'level': 'DEBUG',
+                'propagate': False,
+            },
+            'django.staticfiles': {
+                'handlers': ['console'],
+                'level': 'DEBUG',
+                'propagate': False,
+            },
+        },
+    }
 
+# Archivos de medios (subidos por usuarios)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Login URL
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
-# Configuraciones de seguridad para producción
+# Configuraciones adicionales de seguridad para producción
 if not DEBUG:
+    # HTTPS/SSL
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
 
+
+# Configuración de caché
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
