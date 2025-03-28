@@ -1,5 +1,5 @@
-/* Este archivo se incluye para asegurar que los estilos se carguen correctamente en Vercel */
-/* Importamos los estilos directamente en lugar de usar @import para evitar problemas */
+/* Este archivo proporciona los estilos base para la aplicación */
+/* WhiteNoise se encargará de servir este archivo correctamente */
 
 :root {
     --primary-color: #6C5CE7;

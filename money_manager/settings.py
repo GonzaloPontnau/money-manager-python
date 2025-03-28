@@ -11,31 +11,118 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 import os
-from pathlib import Path
 import dj_database_url
+from pathlib import Path
 from dotenv import load_dotenv
 
-# Cargar variables de entorno desde .env si existe
-load_dotenv()
-
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(os.path.join(BASE_DIR, '.env'))  # Carga .env primero si existe
 
+# Detectar entorno Vercel
+ON_VERCEL = os.environ.get('VERCEL') == '1'
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
+DATABASE_URL = os.environ.get('DATABASE_URL')
+
+# Configuración por defecto (SQLite local)
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+        'CONN_MAX_AGE': 600,  # Buena práctica mantenerlo
+    }
+}
+
+# 1. Prioridad: Usar DATABASE_URL si está disponible
+if DATABASE_URL:
+    print(f"INFO: Configurando base de datos desde DATABASE_URL: {DATABASE_URL[:30]}...")
+    db_from_env = dj_database_url.config(
+        default=DATABASE_URL,
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
+
+    # Corrección específica para SQLite vía URL para evitar errores con SSL o path
+    if db_from_env.get('ENGINE') == 'django.db.backends.sqlite3':
+        # Si es SQLite en Vercel vía URL, forzar /tmp si el path no es absoluto
+        db_name = db_from_env.get('NAME', '')
+        if ON_VERCEL and db_name and not os.path.isabs(db_name):
+            print(f"WARN: SQLite DB name '{db_name}' no es absoluto en Vercel, usando '/tmp/{os.path.basename(db_name)}'")
+            db_from_env['NAME'] = f'/tmp/{os.path.basename(db_name)}'  # Ponerlo en /tmp
+
+        # Eliminar opciones incompatibles con SQLite
+        if 'OPTIONS' in db_from_env:
+            for param in ['sslmode', 'ssl_require', 'ssl_ca', 'ssl_cert', 'ssl_key']:
+                if param in db_from_env['OPTIONS']:
+                    del db_from_env['OPTIONS'][param]
+            # Si OPTIONS queda vacío, eliminarlo
+            if not db_from_env['OPTIONS']:
+                del db_from_env['OPTIONS']
+
+    DATABASES['default'].update(db_from_env)
+
+    # Soporte PyMySQL si es MySQL
+    if DATABASES['default']['ENGINE'] == 'django.db.backends.mysql':
+        try:
+            import pymysql
+            pymysql.install_as_MySQLdb()
+            print("INFO: PyMySQL instalado como driver MySQL.")
+        except ImportError:
+            print("ADVERTENCIA: El backend es MySQL pero pymysql no está instalado.")
+
+# 2. Si estamos en Vercel sin DATABASE_URL, usar SQLite en /tmp
+elif ON_VERCEL:
+    print("INFO: Entorno Vercel detectado sin DATABASE_URL. Usando SQLite en /tmp por defecto.")
+    DATABASES['default'] = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': '/tmp/default_vercel.db3',  # Ruta escribible
+        'CONN_MAX_AGE': 600,
+    }
+
+# 3. De lo contrario, ya está configurado SQLite local (por defecto)
+else:
+    print("INFO: Usando configuración de base de datos SQLite local por defecto.")
+
+# Imprimir el motor final para depuración
+print(f"INFO: Motor de base de datos final: {DATABASES['default']['ENGINE']}")
+print(f"INFO: Nombre/Path de base de datos final: {DATABASES['default'].get('NAME')}")
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY', 'ZteozxDKhtDSmUxxWnRaK0qt4-osWirNtPnhHrhTbaKS-A5A6DhFsKSiCtz_KxAFrKw')
+SECRET_KEY = os.environ.get('SECRET_KEY', 'una-clave-secreta-por-defecto-solo-para-desarrollo')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# Temporalmente habilitamos DEBUG para diagnosticar errores
-DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
+DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.vercel.app', '.now.sh']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+PRODUCTION_HOSTNAME = 'money-manager-nine-umber.vercel.app'
+if PRODUCTION_HOSTNAME:
+    ALLOWED_HOSTS.append(PRODUCTION_HOSTNAME)
 
+VERCEL_DEPLOYMENT_URL = os.environ.get('VERCEL_URL')
+if VERCEL_DEPLOYMENT_URL:
+    try:
+        from urllib.parse import urlparse
+        hostname = urlparse(f"https://{VERCEL_DEPLOYMENT_URL}").hostname
+        if hostname and hostname not in ALLOWED_HOSTS:
+            ALLOWED_HOSTS.append(hostname)
+    except Exception as e:
+        print(f"WARN: Could not parse VERCEL_URL for ALLOWED_HOSTS: {e}")
 
-# Application definition
+# IMPORTANTE para POST en HTTPS (Login/Registro en Vercel)
+CSRF_TRUSTED_ORIGINS = []
+if PRODUCTION_HOSTNAME:
+    CSRF_TRUSTED_ORIGINS.append(f"https://{PRODUCTION_HOSTNAME}")
+
+if VERCEL_DEPLOYMENT_URL:
+    try:
+        from urllib.parse import urlparse
+        origin = f"https://{urlparse(f'https://{VERCEL_DEPLOYMENT_URL}').hostname}"
+        if origin not in CSRF_TRUSTED_ORIGINS:
+            CSRF_TRUSTED_ORIGINS.append(origin)
+    except Exception as e:
+        print(f"WARN: Could not parse VERCEL_URL for CSRF_TRUSTED_ORIGINS: {e}")
+
+print(f"DEBUG: Final ALLOWED_HOSTS: {ALLOWED_HOSTS}")
+print(f"DEBUG: Final CSRF_TRUSTED_ORIGINS: {CSRF_TRUSTED_ORIGINS}")
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -45,16 +132,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'finanzas.apps.FinanzasConfig',  # Nuestra aplicación
-    # 'crispy_forms',  # Para formularios con mejor aspecto
-    # 'crispy_bootstrap4',  # Bootstrap 4 para crispy-forms
 ]
 
-# Detectar si estamos en Vercel
-ON_VERCEL = os.environ.get('VERCEL', False)
-
-# Lista base de middleware
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # WhiteNoise debe ir JUSTO DESPUÉS de SecurityMiddleware
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -64,19 +146,6 @@ MIDDLEWARE = [
     'django.middleware.gzip.GZipMiddleware',  # Comprimir respuestas
     'finanzas.middleware.CachingMiddleware',  # Nuestro middleware personalizado
 ]
-
-# Configuración para archivos estáticos
-STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'  # Para versioning de archivos estáticos
-
-# Añadir WhiteNoise solo si estamos en Vercel o si está explícitamente instalado
-try:
-    import whitenoise
-    MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
-    if not DEBUG:
-        STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-except ImportError:
-    # WhiteNoise no está instalado, usamos el storage predeterminado
-    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
 ROOT_URLCONF = 'money_manager.urls'
 
@@ -98,58 +167,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'money_manager.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
-# Configuración de base de datos dependiente del entorno
-import os
-
-# Detectar si estoy en Vercel
-ON_VERCEL = os.environ.get('VERCEL', False)
-
-# Configuración de la base de datos
-if ON_VERCEL:
-    # Configuración para Vercel (configuración de PostgreSQL)
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.environ.get('POSTGRES_DATABASE', 'verceldb'),
-            'USER': os.environ.get('POSTGRES_USER', 'default'),
-            'PASSWORD': os.environ.get('POSTGRES_PASSWORD', ''),
-            'HOST': os.environ.get('POSTGRES_HOST', 'localhost'),
-            'PORT': os.environ.get('POSTGRES_PORT', '6543'),
-            'CONN_MAX_AGE': 60,  # Mantener conexiones activas por 60 segundos
-        }
-    }
-else:
-    # Configuración para desarrollo local (SQLite)
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-            'CONN_MAX_AGE': 60,  # Mantener conexiones activas por 60 segundos
-        }
-    }
-
-# Si estamos en Vercel o hay una URL de base de datos configurada, usar dj_database_url
-if 'DATABASE_URL' in os.environ:
-    # Detectar automáticamente el tipo de base de datos (MySQL o PostgreSQL) desde la URL
-    DATABASES['default'] = dj_database_url.config(
-        conn_max_age=600,
-        conn_health_checks=True,
-        ssl_require=True
-    )
-    
-    # Si es MySQL, usar PyMySQL como driver
-    if DATABASES['default']['ENGINE'] == 'django.db.backends.mysql':
-        import pymysql
-        pymysql.install_as_MySQLdb()
-
-
-# Password validation
-# https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -165,10 +182,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
-# Internationalization
-# https://docs.djangoproject.com/en/5.1/topics/i18n/
-
 LANGUAGE_CODE = 'es-es'
 
 TIME_ZONE = 'Europe/Madrid'
@@ -177,27 +190,17 @@ USE_I18N = True
 
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.1/howto/static-files/
-
 STATIC_URL = '/staticfiles/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# Configuración adicional para archivos estáticos
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 
-# Configuración para entorno de Vercel
-if 'VERCEL' in os.environ:
-    # Aseguramos que los archivos estáticos se sirvan correctamente en Vercel
-    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
-    
-    # Usamos DEBUG False para logs más claros
+if ON_VERCEL:
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    WHITENOISE_SKIP_COMPRESS_EXTENSIONS = []  # Comprimir todas las extensiones
     DEBUG = False
-    
-    # Configuración para ver errores
     LOGGING = {
         'version': 1,
         'disable_existing_loggers': False,
@@ -229,34 +232,21 @@ if 'VERCEL' in os.environ:
         },
     }
 
-# Archivos de medios (subidos por usuarios)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# Crispy Forms (comentado temporalmente)
-# CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap4"
-# CRISPY_TEMPLATE_PACK = 'bootstrap4'
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Login URL
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
-# Configuraciones adicionales de seguridad para producción
 if not DEBUG:
-    # HTTPS/SSL
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
 
-
-# Configuración de caché
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
