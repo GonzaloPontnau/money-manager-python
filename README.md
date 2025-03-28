@@ -177,14 +177,20 @@ El proyecto está desplegado en Vercel, aprovechando su plataforma para aplicaci
 
 ### Migración de Base de Datos
 
-- **Desarrollo**: Inicialmente se utilizaba SQLite para desarrollo local y MySQL para entornos de producción.
-- **Producción actual**: Al migrar a Vercel, se cambió a PostgreSQL debido a su mejor compatibilidad con la plataforma y mayor rendimiento para aplicaciones web.
+- **Desarrollo**: Se utiliza SQLite para desarrollo local por su simplicidad y portabilidad.
+- **Producción actual**: PostgreSQL 14 en Neon, un servicio serverless que proporciona autoscaling y alta disponibilidad, integrado con Vercel.
+- **Optimizaciones recientes**: 
+  - Implementación de índices compuestos para consultas frecuentes por fecha y categoría
+  - Creación de vistas materializadas para los reportes del dashboard
+  - Optimización de consultas con filtros de rango de fechas
+  - Aprovechamiento del modo serverless de Neon para reducir costos cuando la aplicación no está en uso
 - **Adaptación**: El proyecto incluye configuraciones automáticas que detectan el entorno de despliegue y utilizan la base de datos apropiada sin necesidad de modificar el código.
 
 ### Optimizaciones Implementadas
 
 - **Middleware de Caché**: middleware personalizado para mejorar el rendimiento mediante caché de recursos estáticos.
 - **Consultas Optimizadas**: Se utilizan `select_related` y `prefetch_related` para reducir el número de consultas a la base de datos.
+- **Índices de Base de Datos**: Incorporación de índices estratégicos en campos de búsqueda frecuente para mejorar tiempos de respuesta.
 - **MutationObserver**: Reemplacé los intervals de sondeo por MutationObserver para mejorar el rendimiento del frontend.
 
 ---
@@ -204,13 +210,16 @@ El proyecto está actualmente **completado** y en fase de mantenimiento. Se acep
 ### Migración de Base de Datos y Despliegue
 
 - **Portabilidad de Django ORM**: El ORM de Django permitió migrar entre diferentes sistemas de bases de datos (SQLite, MySQL, PostgreSQL) con mínimos cambios de código.
+- **Utilización de características avanzadas de PostgreSQL**: Implementación de particionamiento de tablas e índices parciales para optimizar consultas históricas.
 - **Compatibilidad de Vercel**: Aprendí a configurar aplicaciones Django para Vercel, incluyendo la integración con PostgreSQL.
 - **Uso de Variables de Entorno**: La configuración basada en variables de entorno facilitó el despliegue en distintos entornos sin cambios en el código.
+- **Estrategias de migración de datos**: Desarrollo de scripts específicos para la migración eficiente de datos históricos sin tiempo de inactividad.
 
 Algunos de los desafíos enfrentados incluyen:
 
 - Garantizar la integridad de los datos durante las transferencias
 - Optimizar las consultas a la base de datos para mejorar el rendimiento
+- Diseñar esquemas eficientes de particionamiento para datos históricos
 - Manejar la migración de datos entre diferentes sistemas de bases de datos
 
 ---
