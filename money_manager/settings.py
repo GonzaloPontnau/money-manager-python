@@ -172,7 +172,7 @@ USE_I18N = True
 
 USE_TZ = True
 
-STATIC_URL = '/staticfiles/'
+STATIC_URL = '/static/'  # Cambiar de '/staticfiles/' a '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Configuración adicional para archivos estáticos
@@ -183,7 +183,7 @@ STATICFILES_DIRS = [
 # Configuración para entorno de Vercel
 if 'VERCEL' in os.environ:
     # Aseguramos que los archivos estáticos se sirvan correctamente en Vercel
-    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
     
     # Usamos DEBUG False para logs más claros
     DEBUG = False
