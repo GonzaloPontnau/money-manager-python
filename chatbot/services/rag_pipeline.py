@@ -1,4 +1,5 @@
 import logging
+import time
 
 from django.conf import settings
 
@@ -41,6 +42,9 @@ def process_message(user, message, session_id):
     Returns:
         dict with keys: response, is_followup, followup_options, session_id
     """
+    t0 = time.monotonic()
+    logger.info("Pipeline inicio: user=%s session=%s msg_len=%d", user.username, session_id[:8], len(message))
+
     # Save user message
     ConversationMessage.objects.create(
         usuario=user,
@@ -72,6 +76,7 @@ def process_message(user, message, session_id):
     )
 
     if needs_followup:
+        logger.info("Follow-up detectado: intent=%s session=%s", intent, session_id[:8])
         # Save follow-up question as assistant message
         ConversationMessage.objects.create(
             usuario=user,
@@ -128,6 +133,10 @@ def process_message(user, message, session_id):
         content=response_text,
         is_followup_question=False,
     )
+
+    elapsed = time.monotonic() - t0
+    logger.info("Pipeline fin: user=%s session=%s elapsed=%.2fs tokens_resp=%d",
+                user.username, session_id[:8], elapsed, len(response_text))
 
     return {
         'response': response_text,

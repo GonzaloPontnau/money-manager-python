@@ -2,8 +2,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 body {
-    background-color: #0B0B10;
-    color: #F0F0F5;
+    background-color: #FBF3EA;
+    color: #1A1A2E;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     margin: 0;
     padding: 0;
@@ -18,8 +18,8 @@ body {
     align-items: center;
     padding: 0 32px;
     height: 64px;
-    background-color: #111118;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    background-color: #FFF8F0;
+    border-bottom: 1px solid rgba(180, 140, 90, 0.15);
 }
 
 .nav-links {
@@ -29,7 +29,7 @@ body {
 }
 
 .nav-links a {
-    color: #8888A0;
+    color: #6B6B80;
     text-decoration: none;
     padding: 8px 12px;
     border-radius: 8px;
@@ -37,9 +37,9 @@ body {
 }
 
 input, select, textarea {
-    background-color: #1E1E28;
-    color: #F0F0F5;
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    background-color: #FFF8F0;
+    color: #1A1A2E;
+    border: 1px solid rgba(180, 140, 90, 0.15);
     border-radius: 8px;
-    color-scheme: dark;
+    color-scheme: light;
 }

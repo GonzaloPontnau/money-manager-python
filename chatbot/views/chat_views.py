@@ -30,6 +30,7 @@ def send_message(request):
         return JsonResponse({'error': 'session_id requerido'}, status=400)
 
     try:
+        logger.debug("Chat request: user=%s session=%s msg_len=%d", request.user.username, session_id[:8], len(user_message))
         result = process_message(request.user, user_message, session_id)
         return JsonResponse(result)
     except Exception as e:

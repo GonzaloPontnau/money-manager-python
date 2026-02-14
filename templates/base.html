@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#0B0B10">
+    <meta name="theme-color" content="#FBF3EA">
     <title>{% block title %}Money Manager{% endblock %}</title>
     
     {% load static %}
@@ -23,7 +23,8 @@
 
     {% block extracss %}{% endblock %}
     
-    <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
+    <link rel="icon" href="{% static 'favicon.svg' %}" type="image/svg+xml">
+    <link rel="alternate icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
     
     <!-- jQuery (needed for Bootstrap tabs) -->
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" defer></script>

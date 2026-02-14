@@ -1,3 +1,5 @@
+import logging
+
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum, Q
@@ -5,6 +7,8 @@ from django.utils.timezone import now, timedelta
 from django.views.decorators.cache import cache_page
 
 from finanzas.models.transaccion import Transaccion
+
+logger = logging.getLogger(__name__)
 
 @login_required
 def dashboard_view(request):

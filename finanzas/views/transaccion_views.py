@@ -1,3 +1,5 @@
+import logging
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -9,6 +11,8 @@ from django.views.decorators.cache import cache_page
 from finanzas.models.transaccion import Transaccion
 from finanzas.models.categoria import Categoria
 from finanzas.forms.transaccion_form import TransaccionForm
+
+logger = logging.getLogger(__name__)
 
 @login_required
 def lista_transacciones(request):
@@ -67,6 +71,8 @@ def nueva_transaccion(request):
         form = TransaccionForm(request.POST, request.FILES, usuario=request.user)
         if form.is_valid():
             transaccion = form.save()
+            logger.info("Nueva transacción: id=%d tipo=%s monto=%s user=%s",
+                        transaccion.id, transaccion.tipo, transaccion.monto, request.user.username)
             messages.success(request, "Transacción registrada correctamente")
             
             # Redirigir a la lista o a otra nueva transacción según el botón usado
@@ -98,6 +104,7 @@ def editar_transaccion(request, id):
         form = TransaccionForm(request.POST, request.FILES, usuario=request.user, instance=transaccion)
         if form.is_valid():
             form.save()
+            logger.info("Transacción editada: id=%d user=%s", transaccion.id, request.user.username)
             messages.success(request, "Transacción actualizada correctamente")
             return redirect('finanzas:lista_transacciones')
     else:
@@ -117,6 +124,7 @@ def eliminar_transaccion(request, id):
     transaccion = get_object_or_404(Transaccion, id=id, usuario=request.user)
     
     if request.method == 'POST':
+        logger.info("Transacción eliminada: id=%d user=%s", transaccion.id, request.user.username)
         transaccion.delete()
         messages.success(request, "Transacción eliminada correctamente")
         return redirect('finanzas:lista_transacciones')

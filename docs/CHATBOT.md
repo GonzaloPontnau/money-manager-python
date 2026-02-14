@@ -1,4 +1,4 @@
-# 🤖 FinBot — Asistente Financiero con IA
+# FinBot — Asistente Financiero con IA
 
 FinBot es un chatbot conversacional integrado en Money Manager que permite a los usuarios consultar su información financiera usando lenguaje natural. Utiliza una arquitectura **RAG (Retrieval-Augmented Generation)** para combinar datos reales del usuario con la capacidad generativa de un LLM.
 
@@ -6,13 +6,13 @@ FinBot es un chatbot conversacional integrado en Money Manager que permite a los
 
 ## Características
 
-- 💬 **Conversación natural** en español e inglés (detección automática de idioma)
-- 📊 **Consultas financieras** sobre balance, gastos, ingresos, presupuestos y transferencias
-- 🔍 **Búsqueda semántica** de transacciones usando embeddings vectoriales
-- 🧠 **Contexto financiero en tiempo real** inyectado en cada consulta
-- 🔄 **Follow-up inteligente** cuando la consulta necesita más detalle
-- 💾 **Historial de conversación** persistente por sesión
-- 🫧 **Widget flotante** no intrusivo en todas las páginas
+- **Conversación natural** en español e inglés (detección automática de idioma)
+- **Consultas financieras** sobre balance, gastos, ingresos, presupuestos y transferencias
+- **Búsqueda semántica** de transacciones usando embeddings vectoriales
+- **Contexto financiero en tiempo real** inyectado en cada consulta
+- **Follow-up inteligente** cuando la consulta necesita más detalle
+- **Historial de conversación** persistente por sesión
+- **Widget flotante** no intrusivo en todas las páginas
 
 ---
 

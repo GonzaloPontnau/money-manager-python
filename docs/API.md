@@ -1,4 +1,4 @@
-# 📡 API Reference — Money Manager
+# API Reference — Money Manager
 
 ## Autenticación
 

@@ -8,35 +8,38 @@
 
 /* --- Design Tokens --- */
 :root {
-  /* Backgrounds */
-  --bg-primary: #0b0b10;
-  --bg-secondary: #111118;
-  --bg-elevated: #18181f;
-  --bg-input: #1e1e28;
-  --bg-hover: #242430;
+  /* Backgrounds — Warm creamy palette */
+  --bg-primary: #FBF3EA;
+  --bg-secondary: #FFF8F0;
+  --bg-elevated: #F5EBDE;
+  --bg-input: #FFF8F0;
+  --bg-hover: #F0E4D4;
 
   /* Borders */
-  --border: rgba(255, 255, 255, 0.06);
-  --border-hover: rgba(255, 255, 255, 0.12);
+  --border: rgba(180, 140, 90, 0.15);
+  --border-hover: rgba(180, 140, 90, 0.28);
 
   /* Text */
-  --text-primary: #f0f0f5;
-  --text-secondary: #8888a0;
-  --text-tertiary: #55556a;
+  --text-primary: #1A1A2E;
+  --text-secondary: #6B6B80;
+  --text-tertiary: #9C9CB0;
 
-  /* Accent — Golden (synced with chatbot) */
-  --accent: #D4A574;
-  --accent-hover: #E0B88A;
-  --accent-subtle: rgba(212, 165, 116, 0.08);
-  --accent-border: rgba(212, 165, 116, 0.25);
+  /* Accent — Warm Amber / Orange */
+  --accent: #D4952B;
+  --accent-hover: #BA7F1E;
+  --accent-subtle: rgba(212, 149, 43, 0.10);
+  --accent-border: rgba(212, 149, 43, 0.25);
 
-  /* Semantic */
-  --success: #34d399;
-  --success-subtle: rgba(52, 211, 153, 0.08);
-  --danger: #f87171;
-  --danger-subtle: rgba(248, 113, 113, 0.08);
-  --warning: #fbbf24;
-  --warning-subtle: rgba(251, 191, 36, 0.08);
+  /* Semantic — Softer pastel tones */
+  --success: #3BAA7E;
+  --success-subtle: rgba(59, 170, 126, 0.10);
+  --danger: #D96B6B;
+  --danger-subtle: rgba(217, 107, 107, 0.10);
+  --warning: #D9A641;
+  --warning-subtle: rgba(217, 166, 65, 0.10);
+
+  /* Button text on colored backgrounds */
+  --on-accent: #FFFFFF;
 
   /* Spacing */
   --space-xs: 4px;
@@ -55,10 +58,10 @@
   --radius-xl: 16px;
   --radius-full: 9999px;
 
-  /* Shadows */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.25);
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.3);
+  /* Shadows — Lighter, warmer */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.10);
 
   /* Transitions */
   --transition-fast: 0.15s ease;
@@ -581,24 +584,24 @@ tr.gasto td.amount {
 .btn-primary,
 .btn:not([class*="btn-"]) {
   background-color: var(--accent);
-  color: #0b0b10;
+  color: var(--on-accent);
 }
 
 .btn-primary:hover,
 .btn:not([class*="btn-"]):hover {
   background-color: var(--accent-hover);
-  color: #0b0b10;
+  color: var(--on-accent);
 }
 
 /* Success */
 .btn-success {
   background-color: var(--success);
-  color: #0b0b10;
+  color: var(--on-accent);
 }
 
 .btn-success:hover {
-  background-color: #4ae3ab;
-  color: #0b0b10;
+  background-color: #4dbd8e;
+  color: var(--on-accent);
 }
 
 /* Danger */
@@ -657,7 +660,7 @@ tr.gasto td.amount {
 
 .btn-info:hover {
   background-color: var(--accent);
-  color: #0b0b10;
+  color: var(--on-accent);
 }
 
 /* Button sizes */
@@ -719,7 +722,7 @@ textarea,
   outline: none;
   appearance: none;
   -webkit-appearance: none;
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 input:focus,
@@ -745,7 +748,7 @@ textarea {
 
 select {
   cursor: pointer;
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='%238888A0' d='M4.427 6.427l3.396 3.396a.25.25 0 00.354 0l3.396-3.396A.25.25 0 0011.396 6H4.604a.25.25 0 00-.177.427z'/%3e%3c/svg%3e");
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='%236B6B80' d='M4.427 6.427l3.396 3.396a.25.25 0 00.354 0l3.396-3.396A.25.25 0 0011.396 6H4.604a.25.25 0 00-.177.427z'/%3e%3c/svg%3e");
   background-repeat: no-repeat;
   background-position: right 12px center;
   background-size: 16px;
@@ -753,7 +756,7 @@ select {
 }
 
 .custom-select {
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='%238888A0' d='M4.427 6.427l3.396 3.396a.25.25 0 00.354 0l3.396-3.396A.25.25 0 0011.396 6H4.604a.25.25 0 00-.177.427z'/%3e%3c/svg%3e");
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='%236B6B80' d='M4.427 6.427l3.396 3.396a.25.25 0 00.354 0l3.396-3.396A.25.25 0 0011.396 6H4.604a.25.25 0 00-.177.427z'/%3e%3c/svg%3e");
   background-repeat: no-repeat;
   background-position: right 12px center;
   background-size: 16px;
@@ -765,7 +768,7 @@ input[type="file"] {
 }
 
 input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(0.6);
+  filter: none;
   cursor: pointer;
 }
 
