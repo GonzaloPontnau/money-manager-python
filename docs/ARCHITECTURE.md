@@ -1,4 +1,4 @@
-# 🏗️ Arquitectura — Money Manager
+# Arquitectura — Money Manager
 
 ## Visión General
 
@@ -6,7 +6,7 @@ Money Manager es una aplicación web full-stack construida con **Django 5** que 
 
 ```mermaid
 graph TB
-    subgraph Cliente["🖥️ Frontend"]
+    subgraph Cliente["Frontend"]
         Browser["Navegador"]
         Templates["Django Templates + HTML5"]
         CSS["Design System CSS"]
@@ -14,7 +14,7 @@ graph TB
         ChartJS["Chart.js"]
     end
 
-    subgraph Django["🐍 Django Backend"]
+    subgraph Django["Django Backend"]
         subgraph Finanzas["App: finanzas"]
             Views["Views<br/>auth · dashboard · transacciones · transferencias"]
             Models["Models<br/>Categoria · Transaccion · Transferencia<br/>PerfilUsuario · Presupuesto"]
@@ -35,13 +35,13 @@ graph TB
         end
     end
 
-    subgraph External["☁️ Servicios Externos"]
+    subgraph External["Servicios Externos"]
         Groq["Groq API<br/>LLM (chat completions)"]
         HF["HuggingFace API<br/>Embeddings<br/>all-MiniLM-L6-v2"]
         Qdrant["Qdrant Cloud<br/>Vector DB"]
     end
 
-    subgraph Data["💾 Datos"]
+    subgraph Data["Datos"]
         SQLite["SQLite (dev)"]
         PostgreSQL["PostgreSQL / Neon (prod)"]
     end
