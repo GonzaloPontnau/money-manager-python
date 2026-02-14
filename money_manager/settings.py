@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+import logging
 import os
 import dj_database_url
 from pathlib import Path
@@ -17,6 +18,8 @@ from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(os.path.join(BASE_DIR, '.env'))  # Carga .env primero si existe
+
+logger = logging.getLogger('money_manager.settings')
 
 # Detectar entorno Vercel
 ON_VERCEL = os.environ.get('VERCEL') == '1'
@@ -34,7 +37,7 @@ DATABASES = {
 
 # 1. Prioridad: Usar DATABASE_URL si está disponible
 if DATABASE_URL:
-    print(f"INFO: Configurando base de datos desde DATABASE_URL: {DATABASE_URL[:30]}...")
+    logger.info("Configurando base de datos desde DATABASE_URL: %s...", DATABASE_URL[:30])
     db_from_env = dj_database_url.config(
         default=DATABASE_URL,
         conn_max_age=600,
@@ -46,7 +49,7 @@ if DATABASE_URL:
         # Si es SQLite en Vercel vía URL, forzar /tmp si el path no es absoluto
         db_name = db_from_env.get('NAME', '')
         if ON_VERCEL and db_name and not os.path.isabs(db_name):
-            print(f"WARN: SQLite DB name '{db_name}' no es absoluto en Vercel, usando '/tmp/{os.path.basename(db_name)}'")
+            logger.warning("SQLite DB name '%s' no es absoluto en Vercel, usando '/tmp/%s'", db_name, os.path.basename(db_name))
             db_from_env['NAME'] = f'/tmp/{os.path.basename(db_name)}'  # Ponerlo en /tmp
 
         # Eliminar opciones incompatibles con SQLite
@@ -65,13 +68,13 @@ if DATABASE_URL:
         try:
             import pymysql
             pymysql.install_as_MySQLdb()
-            print("INFO: PyMySQL instalado como driver MySQL.")
+            logger.info("PyMySQL instalado como driver MySQL.")
         except ImportError:
-            print("ADVERTENCIA: El backend es MySQL pero pymysql no está instalado.")
+            logger.warning("El backend es MySQL pero pymysql no está instalado.")
 
 # 2. Si estamos en Vercel sin DATABASE_URL, usar SQLite en /tmp
 elif ON_VERCEL:
-    print("INFO: Entorno Vercel detectado sin DATABASE_URL. Usando SQLite en /tmp por defecto.")
+    logger.info("Entorno Vercel detectado sin DATABASE_URL. Usando SQLite en /tmp por defecto.")
     DATABASES['default'] = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': '/tmp/default_vercel.db3',  # Ruta escribible
@@ -80,11 +83,10 @@ elif ON_VERCEL:
 
 # 3. De lo contrario, ya está configurado SQLite local (por defecto)
 else:
-    print("INFO: Usando configuración de base de datos SQLite local por defecto.")
+    logger.info("Usando configuración de base de datos SQLite local por defecto.")
 
-# Imprimir el motor final para depuración
-print(f"INFO: Motor de base de datos final: {DATABASES['default']['ENGINE']}")
-print(f"INFO: Nombre/Path de base de datos final: {DATABASES['default'].get('NAME')}")
+logger.info("Motor de base de datos final: %s", DATABASES['default']['ENGINE'])
+logger.info("Nombre/Path de base de datos final: %s", DATABASES['default'].get('NAME'))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('SECRET_KEY', 'una-clave-secreta-por-defecto-solo-para-desarrollo')
@@ -105,7 +107,7 @@ if VERCEL_DEPLOYMENT_URL:
         if hostname and hostname not in ALLOWED_HOSTS:
             ALLOWED_HOSTS.append(hostname)
     except Exception as e:
-        print(f"WARN: Could not parse VERCEL_URL for ALLOWED_HOSTS: {e}")
+        logger.warning("Could not parse VERCEL_URL for ALLOWED_HOSTS: %s", e)
 
 # IMPORTANTE para POST en HTTPS (Login/Registro en Vercel)
 CSRF_TRUSTED_ORIGINS = []
@@ -119,10 +121,10 @@ if VERCEL_DEPLOYMENT_URL:
         if origin not in CSRF_TRUSTED_ORIGINS:
             CSRF_TRUSTED_ORIGINS.append(origin)
     except Exception as e:
-        print(f"WARN: Could not parse VERCEL_URL for CSRF_TRUSTED_ORIGINS: {e}")
+        logger.warning("Could not parse VERCEL_URL for CSRF_TRUSTED_ORIGINS: %s", e)
 
-print(f"DEBUG: Final ALLOWED_HOSTS: {ALLOWED_HOSTS}")
-print(f"DEBUG: Final CSRF_TRUSTED_ORIGINS: {CSRF_TRUSTED_ORIGINS}")
+logger.debug("Final ALLOWED_HOSTS: %s", ALLOWED_HOSTS)
+logger.debug("Final CSRF_TRUSTED_ORIGINS: %s", CSRF_TRUSTED_ORIGINS)
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -202,36 +204,62 @@ if ON_VERCEL:
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
     WHITENOISE_SKIP_COMPRESS_EXTENSIONS = []  # Comprimir todas las extensiones
     DEBUG = False
-    LOGGING = {
-        'version': 1,
-        'disable_existing_loggers': False,
-        'handlers': {
-            'console': {
-                'class': 'logging.StreamHandler',
-            },
+
+# --- Logging centralizado (local + producción) ---
+_LOG_LEVEL = os.environ.get('LOG_LEVEL', 'DEBUG' if DEBUG else 'INFO').upper()
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '[{asctime}] {levelname} {name}: {message}',
+            'style': '{',
+            'datefmt': '%Y-%m-%d %H:%M:%S',
         },
-        'loggers': {
-            'django': {
-                'handlers': ['console'],
-                'level': 'ERROR',
-            },
-            'django.request': {
-                'handlers': ['console'],
-                'level': 'DEBUG',
-                'propagate': False,
-            },
-            'django.template': {
-                'handlers': ['console'],
-                'level': 'DEBUG',
-                'propagate': False,
-            },
-            'django.staticfiles': {
-                'handlers': ['console'],
-                'level': 'DEBUG',
-                'propagate': False,
-            },
+        'simple': {
+            'format': '{levelname} {name}: {message}',
+            'style': '{',
         },
-    }
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose' if DEBUG else 'simple',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'WARNING',
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'WARNING' if not DEBUG else 'INFO',
+            'propagate': False,
+        },
+        'django.request': {
+            'handlers': ['console'],
+            'level': 'DEBUG' if DEBUG else 'ERROR',
+            'propagate': False,
+        },
+        'money_manager': {
+            'handlers': ['console'],
+            'level': _LOG_LEVEL,
+            'propagate': False,
+        },
+        'finanzas': {
+            'handlers': ['console'],
+            'level': _LOG_LEVEL,
+            'propagate': False,
+        },
+        'chatbot': {
+            'handlers': ['console'],
+            'level': _LOG_LEVEL,
+            'propagate': False,
+        },
+    },
+}
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -242,7 +270,7 @@ LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
-if not DEBUG:
+if not DEBUG and ON_VERCEL:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True

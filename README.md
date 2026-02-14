@@ -1,60 +1,75 @@
-# 🚀 Money Manager - Sistema de Gestión Financiera Personal
+# Money Manager
 
-[![Demo en vivo](https://img.shields.io/badge/web-online-black?logo=vercel)](https://money-manager-nine-umber.vercel.app/)
-[![Django](https://img.shields.io/badge/docs-Django-white?logo=django)](https://docs.djangoproject.com/)
-[![Python](https://img.shields.io/badge/docs-Python-blue?logo=python)](https://docs.python.org/3/)
+**Sistema de gestión financiera personal con asistente de IA integrado**
 
-## 📸 Demo
+[![Demo en vivo](https://img.shields.io/badge/Demo-Online-D4A574?style=for-the-badge&logo=vercel&logoColor=white)](https://money-manager-nine-umber.vercel.app/)
+[![Django](https://img.shields.io/badge/Django-5-092E20?style=for-the-badge&logo=django&logoColor=white)](https://docs.djangoproject.com/)
+[![Python](https://img.shields.io/badge/Python-3-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://docs.python.org/3/)
 
-### Inicio de Sesión 
+---
+
+## Demo
+
+### Inicio de Sesión
+
 ![demo-inicio-de-sesion](https://github.com/user-attachments/assets/fcf3ba73-6a65-4676-8ecc-53ed0bc90e3e)
 
 ### Dashboard Financiero
+
 ![demo-dashboard](https://github.com/user-attachments/assets/c9fb37fc-96da-4f89-a0e5-164169e6c77a)
 
 ### Registro Ingreso/Gasto
+
 ![demo-ingreso-gasto](https://github.com/user-attachments/assets/d58cea05-0bdc-471b-8161-0cf16a9e653f)
 
 ### Formulario de Transferencia
+
 ![demo-transferencia](https://github.com/user-attachments/assets/50f8105d-3f29-47fb-8c3e-f6869b5b3785)
 
-## Descripción
-
-Money Manager es una aplicación web completa para la gestión de finanzas personales desarrollada con Django. Permite a los usuarios registrar, categorizar y visualizar sus ingresos y gastos, así como realizar transferencias entre usuarios, establecer presupuestos y monitorear su salud financiera a través de un intuitivo dashboard.
-
-> [!TIP]
-> Este proyecto fue diseñado con un enfoque modular para facilitar su mantenimiento y expansión.
-
 ---
 
-## Características Principales
+## Características
 
-- **Dashboard Financiero**: Visualización gráfica de ingresos vs gastos
-- **Registro de Transacciones**: Gestión completa de ingresos y gastos con categorización
-- **Transferencias**: Sistema para enviar y recibir dinero entre usuarios
-- **Presupuestos**: Definición de límites por categoría con alertas de excesos
-- **Perfiles Personalizados**: Configuración de moneda preferida y opciones de usuario
-- **Sistema de Autenticación**: Registro, inicio de sesión y gestión de sesiones
-- **Interfaz Responsiva**: Diseño adaptable a diferentes dispositivos
-- **Notificaciones**: Alertas por correo electrónico para presupuestos y movimientos importantes
-- **Búsqueda Avanzada**: Filtrado de transacciones por múltiples criterios
+### Gestión Financiera
 
----
+- **Dashboard interactivo** — gráficos de ingresos vs gastos con Chart.js
+- **Transacciones** — registro completo de ingresos y gastos con categorización
+- **Transferencias** — envío y recepción de dinero entre usuarios con transacciones atómicas
+- **Presupuestos** — límites por categoría con alertas de exceso
+- **Filtrado avanzado** — búsqueda de transacciones por fecha, categoría, tipo y monto
 
-## Tecnologías Utilizadas
+### Asistente FinBot
 
-- **Backend**: Django 5, Python 3
-- **Frontend**: HTML5, CSS3, JavaScript, Bootstrap 4.6
-- **Visualización de Datos**: Chart.js
-- **Iconos**: Font Awesome 5
-- **Base de Datos**:
-  - **Desarrollo**: SQLite
-  - **Producción**: PostgreSQL en Vercel (anteriormente MySQL)
-- **Testing**: Django Test Framework, Pytest
-- **Despliegue**: Vercel
+- **Chat con IA** — consultas financieras en lenguaje natural (español e inglés)
+- **RAG Pipeline** — búsqueda semántica sobre transacciones con Qdrant + HuggingFace
+- **Contexto en tiempo real** — balance, gastos por categoría, presupuestos y últimas transacciones
+- **Follow-up inteligente** — cuando la consulta necesita más información, sugiere opciones
+- **Widget flotante** — accesible desde cualquier página sin interrumpir la navegación
+
+### Infraestructura
+
+- **Interfaz responsiva** — diseño adaptable a cualquier dispositivo
+- **Design system** — dark mode con paleta dorada y tokens CSS
+- **Auto-embedding** — cada transacción se vectoriza automáticamente vía signals
+- **Despliegue serverless** — Vercel + Neon PostgreSQL
 
 > [!NOTE]
-> Este proyecto utiliza una arquitectura MVT (Model-View-Template) típica de Django, pero con una organización modular mejorada.
+> Consulta la [documentación completa del chatbot](docs/CHATBOT.md) y la [arquitectura del proyecto](docs/ARCHITECTURE.md) para información técnica detallada.
+
+---
+
+## Stack Tecnológico
+
+| Capa                   | Tecnología                                            |
+| ---------------------- | ----------------------------------------------------- |
+| **Backend**            | Django 5 · Python 3                                   |
+| **Frontend**           | HTML5 · CSS3 · JavaScript · Chart.js · Font Awesome 6 |
+| **LLM**                | Groq API (compatible OpenAI)                          |
+| **Embeddings**         | HuggingFace (`all-MiniLM-L6-v2`, 384 dims)            |
+| **Vector DB**          | Qdrant Cloud (cosine similarity)                      |
+| **BD relacional**      | SQLite (dev) · PostgreSQL / Neon (prod)               |
+| **Hosting**            | Vercel (serverless)                                   |
+| **Archivos estáticos** | WhiteNoise                                            |
 
 ---
 
@@ -63,32 +78,45 @@ Money Manager es una aplicación web completa para la gestión de finanzas perso
 ```
 money-manager-python/
 │
-├── finanzas/                # Aplicación principal
-│   ├── admin/               # Configuración del panel de administración
-│   ├── forms/               # Formularios para la entrada de datos
-│   ├── migrations/          # Migraciones de la base de datos
-│   ├── models/              # Modelos de datos (estructura de la BD)
-│   ├── views/               # Vistas y lógica de negocio
-│   ├── signals.py           # Señales para acciones automáticas
-│   ├── middleware.py        # Middleware personalizado para optimizaciones
-│   ├── apps.py              # Configuración de la aplicación
-│   └── urls.py              # Rutas de la aplicación
+├── chatbot/                    # App FinBot — Asistente IA
+│   ├── models/                 # ConversationMessage
+│   ├── prompts/                # System prompt del LLM
+│   ├── services/               # RAG Pipeline, LLM, Embeddings, Qdrant,
+│   │                           #   Financial Context, Follow-up Detector
+│   ├── views/                  # API endpoints del chat
+│   ├── signals.py              # Auto-embedding de transacciones
+│   └── templatetags/           # Widget template tag
 │
-├── money_manager/           # Configuración del proyecto
-│   ├── settings.py          # Configuración principal
-│   ├── urls.py              # Rutas del proyecto
-│   ├── wsgi.py              # Configuración WSGI para despliegue
-│   └── asgi.py              # Configuración ASGI para despliegue
+├── finanzas/                   # App principal — Gestión financiera
+│   ├── admin/                  # Admin personalizado con gráficos
+│   ├── forms/                  # Formularios de entrada
+│   ├── models/                 # Categoria, Transaccion, Transferencia,
+│   │                           #   PerfilUsuario, Presupuesto
+│   ├── views/                  # Auth, Dashboard, Transacciones, Transferencias
+│   ├── middleware.py           # CachingMiddleware
+│   └── signals.py              # Categorías default + saldo inicial
 │
-├── templates/               # Plantillas HTML
-│   ├── admin/               # Personalizaciones del admin
-│   ├── finanzas/            # Plantillas de la aplicación
-│   └── base.html            # Plantilla base
+├── money_manager/              # Configuración del proyecto Django
+│   └── settings.py             # Auto-detección de entorno (dev/prod)
 │
-├── static/                  # Archivos estáticos (CSS, JS)
+├── templates/                  # Plantillas HTML
+│   ├── base.html               # Layout base + navbar + chatbot widget
+│   ├── chatbot/                # Widget flotante
+│   └── finanzas/               # Dashboard, login, transacciones, etc.
 │
-├── manage.py                # Utilidad de línea de comandos
-└── README.md                # Este archivo
+├── static/                     # CSS + JS
+│   ├── css/styles.css          # Design system (dark mode dorado)
+│   ├── css/chatbot.css         # Estilos del chat widget
+│   └── js/chatbot.js           # Lógica del widget
+│
+├── docs/                       # Documentación
+│   ├── ARCHITECTURE.md         # Arquitectura y diagramas
+│   ├── CHATBOT.md              # Documentación del agente FinBot
+│   └── API.md                  # Referencia de endpoints
+│
+├── requirements.txt
+├── vercel.json
+└── build_files.sh
 ```
 
 ---
@@ -97,138 +125,136 @@ money-manager-python/
 
 ### Prerrequisitos
 
-- Python 3.9 o superior
-- pip (gestor de paquetes de Python)
-- Virtualenv (recomendado)
+- Python 3.9+
+- pip
 
-### Pasos de Instalación
-
-1. **Clonar el repositorio**
+### Instalación Local
 
 ```bash
+# 1. Clonar el repositorio
 git clone https://github.com/PontnauGonzalo/money-manager-python
 cd money-manager-python
-```
 
-2. **Crear y activar entorno virtual**
-
-```bash
-# En Windows
+# 2. Crear y activar entorno virtual
 python -m venv venv
-venv\Scripts\activate
-```
+venv\Scripts\activate          # Windows
+# source venv/bin/activate    # Linux/Mac
 
-3. **Instalar dependencias**
-
-```bash
+# 3. Instalar dependencias
 pip install -r requirements.txt
-```
 
-4. **Aplicar migraciones**
+# 4. Configurar variables de entorno
+cp .env.example .env
+# Editar .env con tus API keys (ver sección siguiente)
 
-```bash
+# 5. Aplicar migraciones
 python manage.py migrate
-```
 
-5. **Crear superusuario**
-
-```bash
+# 6. Crear superusuario
 python manage.py createsuperuser
-```
 
-6. **Iniciar servidor de desarrollo**
-
-```bash
+# 7. Iniciar servidor
 python manage.py runserver
 ```
 
+### Variables de Entorno
+
+Crear un archivo `.env` en la raíz del proyecto:
+
+```env
+# Django
+SECRET_KEY=tu-clave-secreta-aqui
+DEBUG=true
+
+# Base de datos (opcional, usa SQLite por defecto)
+# DATABASE_URL=postgresql://user:pass@host:5432/dbname
+
+# FinBot — Chatbot IA (requeridas para el asistente)
+GROQ_API_KEY=gsk_xxxxx
+GROQ_MODEL=openai/gpt-oss-120
+QDRANT_URL=https://xxx.qdrant.io
+QDRANT_API_KEY=xxxxx
+HF_API_TOKEN=hf_xxxxx
+```
+
 > [!TIP]
-> Para un entorno de producción, asegúrate de configurar un servidor web como Nginx o Apache junto con Gunicorn o uWSGI.
+> El chatbot funciona sin las API keys, pero las consultas de IA no estarán disponibles. El resto de la app funciona normalmente.
 
 ---
 
-## Características Avanzadas
+## Arquitectura del Chatbot
 
-### Sistema de Signals
+FinBot utiliza un pipeline **RAG (Retrieval-Augmented Generation)** que combina datos financieros reales con generación de texto por LLM:
 
-El proyecto utiliza el sistema de signals de Django para acciones automáticas:
-- Creación automática de categorías predeterminadas para nuevos usuarios
-- Actualización de saldos cuando se realizan transacciones
+```
+Usuario → Intent Detection → Financial Context + Semantic Search → LLM → Respuesta
+```
+
+1. **Detección de intención** — clasifica la consulta y determina si necesita follow-up
+2. **Contexto financiero** — obtiene balance, gastos, presupuestos desde Django ORM
+3. **Búsqueda semántica** — genera embedding del mensaje y busca transacciones similares en Qdrant
+4. **Generación** — envía todo al LLM (Groq) con el historial de conversación
+
+> [!NOTE]
+> Cada transacción se vectoriza automáticamente al crearse/editarse/eliminarse mediante Django signals, manteniendo Qdrant sincronizado.
+
+**Documentación detallada:** [docs/CHATBOT.md](docs/CHATBOT.md) | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | [docs/API.md](docs/API.md)
+
+---
+
+## Características Técnicas Destacadas
 
 ### Transacciones Atómicas
 
-Las transferencias entre usuarios utilizan transacciones atómicas para garantizar la integridad de los datos, evitando problemas si una operación falla.
+Las transferencias entre usuarios utilizan `transaction.atomic()` para garantizar la integridad de los datos.
 
-### Personalización del Admin
+### Auto-Embedding de Transacciones
 
-El panel de administración ha sido personalizado para proporcionar:
-- Filtros específicos por usuario
-- Visualización mejorada con gráficos
-- Resúmenes y estadísticas
+Los Django signals generan embeddings automáticamente al crear/editar/eliminar transacciones, manteniendo el vector store de Qdrant siempre sincronizado.
 
-> [!TIP]
-> Puedes extender fácilmente los modelos agregando nuevos archivos en la carpeta `models/` sin modificar la estructura existente.
+### Sistema de Signals
 
----
+- **Categorías default** — se crean automáticamente al registrarse un usuario
+- **Saldo inicial** — monto de prueba asignado a nuevos usuarios
+- **Vectorización** — cada transacción se embede en Qdrant
 
-## Despliegue en Vercel
+### Middleware Personalizado
 
-El proyecto está desplegado en Vercel, aprovechando su plataforma para aplicaciones web. Algunos aspectos importantes del despliegue:
+- `CachingMiddleware` para optimización de recursos estáticos
+- `WhiteNoise` para servir archivos estáticos en producción
+- `GZipMiddleware` para compresión de respuestas
 
-### Migración de Base de Datos
+### Admin Personalizado
 
-- **Desarrollo**: Se utiliza SQLite para desarrollo local por su simplicidad y portabilidad.
-- **Producción actual**: PostgreSQL 14 en Neon, un servicio serverless que proporciona autoscaling y alta disponibilidad, integrado con Vercel.
-- **Optimizaciones recientes**: 
-  - Implementación de índices compuestos para consultas frecuentes por fecha y categoría
-  - Creación de vistas materializadas para los reportes del dashboard
-  - Optimización de consultas con filtros de rango de fechas
-  - Aprovechamiento del modo serverless de Neon para reducir costos cuando la aplicación no está en uso
-- **Adaptación**: El proyecto incluye configuraciones automáticas que detectan el entorno de despliegue y utilizan la base de datos apropiada sin necesidad de modificar el código.
-
-### Optimizaciones Implementadas
-
-- **Middleware de Caché**: middleware personalizado para mejorar el rendimiento mediante caché de recursos estáticos.
-- **Consultas Optimizadas**: Se utilizan `select_related` y `prefetch_related` para reducir el número de consultas a la base de datos.
-- **Índices de Base de Datos**: Incorporación de índices estratégicos en campos de búsqueda frecuente para mejorar tiempos de respuesta.
-- **MutationObserver**: Reemplacé los intervals de sondeo por MutationObserver para mejorar el rendimiento del frontend.
+Panel de administración con filtros por usuario, gráficos y estadísticas.
 
 ---
 
-## Estado del Proyecto
+## Despliegue
 
-El proyecto está actualmente **completado** y en fase de mantenimiento. Se aceptan sugerencias y mejoras.
+El proyecto está desplegado en **Vercel** con **PostgreSQL en Neon** (serverless):
 
----
-
-## Lecciones Aprendidas y Desafíos
-
-- La importancia de una arquitectura modular para facilitar el mantenimiento
-- Cómo implementar transacciones atómicas en Django
-- La personalización del panel de administración para mejorar la usabilidad
-
-### Migración de Base de Datos y Despliegue
-
-- **Portabilidad de Django ORM**: El ORM de Django permitió migrar entre diferentes sistemas de bases de datos (SQLite, MySQL, PostgreSQL) con mínimos cambios de código.
-- **Utilización de características avanzadas de PostgreSQL**: Implementación de particionamiento de tablas e índices parciales para optimizar consultas históricas.
-- **Compatibilidad de Vercel**: Aprendí a configurar aplicaciones Django para Vercel, incluyendo la integración con PostgreSQL.
-- **Uso de Variables de Entorno**: La configuración basada en variables de entorno facilitó el despliegue en distintos entornos sin cambios en el código.
-- **Estrategias de migración de datos**: Desarrollo de scripts específicos para la migración eficiente de datos históricos sin tiempo de inactividad.
-
-Algunos de los desafíos enfrentados incluyen:
-
-- Garantizar la integridad de los datos durante las transferencias
-- Optimizar las consultas a la base de datos para mejorar el rendimiento
-- Diseñar esquemas eficientes de particionamiento para datos históricos
-- Manejar la migración de datos entre diferentes sistemas de bases de datos
+- Auto-detección de entorno (SQLite local ↔ PostgreSQL producción)
+- WhiteNoise para archivos estáticos comprimidos
+- CSRF + SSL correctamente configurados para HTTPS
+- Variables de entorno gestionadas desde el dashboard de Vercel
 
 ---
 
-## 👨‍💻 Desarrollado por
+## Documentación
+
+| Documento                               | Descripción                                                 |
+| --------------------------------------- | ----------------------------------------------------------- |
+| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Arquitectura general, diagramas de flujo, stack tecnológico |
+| [CHATBOT.md](docs/CHATBOT.md)           | Documentación completa del asistente FinBot                 |
+| [API.md](docs/API.md)                   | Referencia de endpoints de la API                           |
+
+---
+
+## Desarrollado por
 
 **Ing. Pontnau, Gonzalo Martín**
 
-💼 [LinkedIn](https://linkedin.com/in/gonzalopontnau)
-📧 [Email](mailto:gonzalopontnau@gmail.com)
-
----
+[LinkedIn](https://linkedin.com/in/gonzalopontnau) </br>
+[Email](mailto:gonzalopontnau@gmail.com) </br>
+[Portfolio](https://gonzalopontnau.vercel.app/)

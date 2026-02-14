@@ -24,11 +24,11 @@
   --text-secondary: #8888a0;
   --text-tertiary: #55556a;
 
-  /* Accent */
-  --accent: #7c6ef6;
-  --accent-hover: #9486ff;
-  --accent-subtle: rgba(124, 110, 246, 0.08);
-  --accent-border: rgba(124, 110, 246, 0.25);
+  /* Accent — Golden (synced with chatbot) */
+  --accent: #D4A574;
+  --accent-hover: #E0B88A;
+  --accent-subtle: rgba(212, 165, 116, 0.08);
+  --accent-border: rgba(212, 165, 116, 0.25);
 
   /* Semantic */
   --success: #34d399;
@@ -581,13 +581,13 @@ tr.gasto td.amount {
 .btn-primary,
 .btn:not([class*="btn-"]) {
   background-color: var(--accent);
-  color: #ffffff;
+  color: #0b0b10;
 }
 
 .btn-primary:hover,
 .btn:not([class*="btn-"]):hover {
   background-color: var(--accent-hover);
-  color: #ffffff;
+  color: #0b0b10;
 }
 
 /* Success */
@@ -657,7 +657,7 @@ tr.gasto td.amount {
 
 .btn-info:hover {
   background-color: var(--accent);
-  color: #ffffff;
+  color: #0b0b10;
 }
 
 /* Button sizes */
