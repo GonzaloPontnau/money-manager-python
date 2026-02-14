@@ -1,0 +1,77 @@
+{% if show_chatbot %}
+<!-- FinBot Floating Bubble -->
+<button id="chatbot-toggle" class="chatbot-bubble" title="Asistente Financiero FinBot">
+    <i class="fas fa-robot"></i>
+</button>
+
+<!-- FinBot Chat Panel -->
+<div id="chatbot-panel" class="chatbot-panel">
+    <!-- Header -->
+    <div class="chatbot-header">
+        <div class="chatbot-header-info">
+            <div class="chatbot-avatar">
+                <i class="fas fa-robot"></i>
+            </div>
+            <div>
+                <h3 class="chatbot-title">FinBot</h3>
+                <span class="chatbot-status">Asistente Financiero</span>
+            </div>
+        </div>
+        <div class="chatbot-header-actions">
+            <button id="chatbot-new-chat" class="chatbot-header-btn" title="Nueva conversación">
+                <i class="fas fa-plus"></i>
+            </button>
+            <button id="chatbot-close" class="chatbot-header-btn" title="Cerrar">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Messages -->
+    <div id="chatbot-messages" class="chatbot-messages">
+        <div class="chat-message assistant">
+            <div class="message-avatar"><i class="fas fa-robot"></i></div>
+            <div class="message-bubble">
+                Hola! Soy <strong>FinBot</strong>, tu asistente financiero personal.
+                Puedo ayudarte con consultas sobre tu balance, gastos, presupuestos y transacciones.
+            </div>
+        </div>
+    </div>
+
+    <!-- Follow-up options -->
+    <div id="chatbot-followup-options" class="chatbot-followup-options"></div>
+
+    <!-- Typing indicator -->
+    <div id="chatbot-typing" class="chat-message assistant chatbot-typing-wrapper">
+        <div class="message-avatar"><i class="fas fa-robot"></i></div>
+        <div class="message-bubble">
+            <div class="typing-indicator">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Suggestion chips -->
+    <div id="chatbot-suggestions" class="chatbot-suggestions">
+        <button class="suggestion-chip" data-message="¿Cuál es mi balance actual?">
+            <i class="fas fa-wallet"></i> Mi balance
+        </button>
+        <button class="suggestion-chip" data-message="¿Cuánto gasté este mes?">
+            <i class="fas fa-chart-bar"></i> Gastos del mes
+        </button>
+        <button class="suggestion-chip" data-message="¿Cómo van mis presupuestos?">
+            <i class="fas fa-bullseye"></i> Presupuestos
+        </button>
+    </div>
+
+    <!-- Input area -->
+    <div class="chatbot-input-area">
+        <input type="text" id="chatbot-input"
+               placeholder="Pregunta sobre tus finanzas..."
+               autocomplete="off">
+        <button id="chatbot-send" title="Enviar">
+            <i class="fas fa-paper-plane"></i>
+        </button>
+    </div>
+</div>
+{% endif %}

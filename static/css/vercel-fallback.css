@@ -1,31 +1,10 @@
-/* 
-Archivo de respaldo para estilos en Vercel
-Este archivo contiene los estilos críticos que deben cargarse en caso de que
-el archivo principal de estilos no se cargue correctamente.
-*/
-
-:root {
-    --primary-color: #6C5CE7;
-    --primary-light: #8A7AFF;
-    --secondary-color: #00B894;
-    --danger-color: #FF7675;
-    --warning-color: #FDCB6E;
-    --dark-color: #13131A;
-    --darker-color: #0C0C10;
-    --medium-dark: #1E1E26;
-    --light-dark: #2D2D3A;
-    --text-color: #E2E2E2;
-    --text-muted: #ADADAD;
-    --border-radius: 8px;
-    --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-    --card-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
-    --border-color: #3F3F50;
-}
+/* Minimal fallback for Vercel deployment */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 body {
-    background-color: #1A1A25;
-    color: #E2E2E2;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #0B0B10;
+    color: #F0F0F5;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     margin: 0;
     padding: 0;
     min-height: 100vh;
@@ -33,50 +12,34 @@ body {
     flex-direction: column;
 }
 
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
 .navbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem 2rem;
-    background-color: #0C0C10;
-    border-bottom: 1px solid #3F3F50;
-}
-
-.logo h1 {
-    font-size: 1.5rem;
-    font-weight: bold;
-    background: linear-gradient(to right, #8A7AFF, #00B894);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    letter-spacing: 1px;
+    padding: 0 32px;
+    height: 64px;
+    background-color: #111118;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .nav-links {
     display: flex;
     list-style: none;
-}
-
-.nav-links li {
-    margin-left: 1.5rem;
+    gap: 4px;
 }
 
 .nav-links a {
-    color: #ADADAD;
+    color: #8888A0;
     text-decoration: none;
-    transition: all 0.3s ease;
     padding: 8px 12px;
     border-radius: 8px;
-    font-weight: 500;
+    font-size: 0.875rem;
 }
 
-.nav-links a:hover {
-    color: #8A7AFF;
-    background-color: rgba(108, 92, 231, 0.1);
+input, select, textarea {
+    background-color: #1E1E28;
+    color: #F0F0F5;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    color-scheme: dark;
 }

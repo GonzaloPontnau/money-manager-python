@@ -7,37 +7,37 @@
 <div class="dashboard-container">
     <h1>Dashboard Financiero</h1>
     
-    <!-- Resumen financiero -->
+    <!-- Financial Summary -->
     <div class="financial-summary">
         <div class="summary-card income">
-            <h3>Ingresos Totales</h3>
+            <h3><i class="fas fa-arrow-up mr-2"></i>Ingresos</h3>
             <p class="amount">{{ ingresos_totales }}</p>
         </div>
         
         <div class="summary-card expenses">
-            <h3>Gastos Totales</h3>
+            <h3><i class="fas fa-arrow-down mr-2"></i>Gastos</h3>
             <p class="amount">{{ gastos_totales }}</p>
         </div>
         
         <div class="summary-card balance">
-            <h3>Balance</h3>
+            <h3><i class="fas fa-scale-balanced mr-2"></i>Balance</h3>
             <p class="amount {% if balance >= 0 %}positive{% else %}negative{% endif %}">
                 {{ balance }}
             </p>
         </div>
     </div>
     
-    <!-- Gráfico de ingresos vs. gastos -->
+    <!-- Chart -->
     <div class="chart-container">
         <h2>Ingresos vs Gastos</h2>
         <canvas id="balanceChart" width="400" height="200"></canvas>
     </div>
     
-    <!-- Últimas transacciones -->
+    <!-- Recent Transactions -->
     <div class="recent-transactions">
         <div class="section-header">
             <h2>Últimas Transacciones</h2>
-            <a href="{% url 'finanzas:lista_transacciones' %}" class="btn btn-primary">
+            <a href="{% url 'finanzas:lista_transacciones' %}" class="btn btn-outline-primary btn-sm">
                 <i class="fas fa-list"></i> Ver todas
             </a>
         </div>
@@ -56,10 +56,16 @@
                 <tr class="{{ t.tipo|lower }}">
                     <td>{{ t.fecha|date:"d/m/Y" }}</td>
                     <td>{{ t.descripcion|default:"Sin descripción" }}</td>
-                    <td>{% if t.tipo == 'ingreso' %}Ingreso{% else %}Gasto{% endif %}</td>
+                    <td>
+                        {% if t.tipo == 'ingreso' %}
+                            <span class="badge badge-success">Ingreso</span>
+                        {% else %}
+                            <span class="badge badge-danger">Gasto</span>
+                        {% endif %}
+                    </td>
                     <td class="amount">{{ t.monto }}</td>
                     <td>
-                        <a href="{% url 'finanzas:detalle_transaccion' t.id %}" class="btn btn-sm btn-info">
+                        <a href="{% url 'finanzas:detalle_transaccion' t.id %}" class="btn btn-info btn-sm">
                             <i class="fas fa-eye"></i>
                         </a>
                     </td>
@@ -68,13 +74,15 @@
                 <tr>
                     <td colspan="5">
                         <div class="empty-state">
-                            <p>No hay transacciones registradas</p>
-                            <div class="mt-2">
-                                <a href="{% url 'finanzas:nueva_transaccion' %}?tipo=ingreso" class="btn btn-sm btn-success">
-                                    <i class="fas fa-plus-circle"></i> Nuevo Ingreso
+                            <i class="fas fa-receipt"></i>
+                            <h3>Sin transacciones</h3>
+                            <p>Registra tu primera transacción para comenzar</p>
+                            <div class="action-buttons" style="justify-content: center;">
+                                <a href="{% url 'finanzas:nueva_transaccion' %}?tipo=ingreso" class="btn btn-success btn-sm">
+                                    <i class="fas fa-plus"></i> Nuevo Ingreso
                                 </a>
-                                <a href="{% url 'finanzas:nueva_transaccion' %}?tipo=gasto" class="btn btn-sm btn-danger">
-                                    <i class="fas fa-minus-circle"></i> Nuevo Gasto
+                                <a href="{% url 'finanzas:nueva_transaccion' %}?tipo=gasto" class="btn btn-danger btn-sm">
+                                    <i class="fas fa-minus"></i> Nuevo Gasto
                                 </a>
                             </div>
                         </div>
@@ -85,113 +93,40 @@
         </table>
     </div>
     
-    <!-- Acciones rápidas -->
+    <!-- Quick Actions -->
     <div class="quick-actions">
         <h2>Acciones Rápidas</h2>
         <div class="actions-grid">
             <a href="{% url 'finanzas:nueva_transaccion' %}?tipo=ingreso" class="action-card income">
-                <i class="fas fa-plus-circle fa-2x"></i>
+                <i class="fas fa-plus-circle"></i>
                 <span>Registrar Ingreso</span>
             </a>
             <a href="{% url 'finanzas:nueva_transaccion' %}?tipo=gasto" class="action-card expense">
-                <i class="fas fa-minus-circle fa-2x"></i>
+                <i class="fas fa-minus-circle"></i>
                 <span>Registrar Gasto</span>
             </a>
             <a href="{% url 'finanzas:lista_transacciones' %}" class="action-card list">
-                <i class="fas fa-list fa-2x"></i>
+                <i class="fas fa-list"></i>
                 <span>Ver Transacciones</span>
             </a>
             <a href="{% url 'finanzas:nueva_transferencia' %}" class="action-card transfer">
-                <i class="fas fa-exchange-alt fa-2x"></i>
+                <i class="fas fa-exchange-alt"></i>
                 <span>Nueva Transferencia</span>
             </a>
         </div>
     </div>
 </div>
-
-<style>
-    .section-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 15px;
-    }
-    
-    .quick-actions {
-        margin-top: 30px;
-    }
-    
-    .actions-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 15px;
-        margin-top: 15px;
-    }
-    
-    .action-card {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-        background-color: var(--medium-dark);
-        border-radius: 8px;
-        border: 1px solid var(--border-color);
-        box-shadow: var(--card-shadow);
-        transition: all 0.3s ease;
-        text-decoration: none;
-        color: var(--text-color);
-    }
-    
-    .action-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-        background-color: var(--light-dark);
-    }
-    
-    .action-card i {
-        margin-bottom: 10px;
-    }
-    
-    .action-card.income i {
-        color: var(--secondary-color);
-    }
-    
-    .action-card.expense i {
-        color: var(--danger-color);
-    }
-    
-    .action-card.list i {
-        color: var(--primary-light);
-    }
-    
-    .action-card.transfer i {
-        color: var(--primary-color);
-    }
-    
-    .empty-state {
-        text-align: center;
-        padding: 15px;
-    }
-</style>
 {% endblock %}
 
 {% block extrajs %}
-<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<!-- Datos para el gráfico -->
 <script>
-    // Configuración del gráfico
     document.addEventListener('DOMContentLoaded', function() {
         const ctx = document.getElementById('balanceChart').getContext('2d');
         
-        // Datos para el gráfico (ingresos vs gastos)
-        // Predefinimos las variables para evitar problemas de sintaxis
         var ingresosValue = parseFloat("{{ ingresos_totales|floatformat:2 }}".replace(',', '.'));
         var gastosValue = parseFloat("{{ gastos_totales|floatformat:2 }}".replace(',', '.'));
         
-        // Crear el gráfico
         new Chart(ctx, {
             type: 'bar',
             data: {
@@ -200,31 +135,44 @@
                     label: 'Monto',
                     data: [ingresosValue, gastosValue],
                     backgroundColor: [
-                        'rgba(0, 184, 148, 0.7)',  // Verde para ingresos
-                        'rgba(255, 118, 117, 0.7)' // Rojo para gastos
+                        'rgba(52, 211, 153, 0.15)',
+                        'rgba(248, 113, 113, 0.15)'
                     ],
                     borderColor: [
-                        'rgba(0, 184, 148, 1)',
-                        'rgba(255, 118, 117, 1)'
+                        'rgba(52, 211, 153, 0.8)',
+                        'rgba(248, 113, 113, 0.8)'
                     ],
-                    borderWidth: 1
+                    borderWidth: 1,
+                    borderRadius: 8,
+                    barPercentage: 0.5
                 }]
             },
             options: {
                 responsive: true,
                 scales: {
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.03)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: '#8888A0',
+                            font: { family: 'Inter', size: 11 }
+                        }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            color: '#8888A0',
+                            font: { family: 'Inter', size: 12, weight: 500 }
+                        }
                     }
                 },
                 plugins: {
-                    legend: {
-                        display: false
-                    },
+                    legend: { display: false },
                     title: {
-                        display: true,
-                        text: 'Comparativa de Ingresos y Gastos',
-                        color: '#E2E2E2'
+                        display: false
                     }
                 }
             }

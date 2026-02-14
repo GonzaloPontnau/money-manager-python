@@ -4,253 +4,151 @@
 {% block title %}{{ title }} - Money Manager{% endblock %}
 
 {% block content %}
-<div class="form-container">
+<div class="form-container" style="max-width: 700px;">
     <div class="form-header">
         <h1>{{ title }}</h1>
-        <a href="{% url 'finanzas:lista_transacciones' %}" class="btn btn-outline-primary">
-            <i class="fas fa-arrow-left"></i> Volver a transacciones
+        <a href="{% url 'finanzas:lista_transacciones' %}" class="btn btn-outline-primary btn-sm">
+            <i class="fas fa-arrow-left"></i> Volver
         </a>
     </div>
     
-    <div class="card">
-        <div class="card-body">
-            <form method="post" enctype="multipart/form-data" id="transaccion-form">
-                {% csrf_token %}
-                
-                {% if form.errors %}
-                <div class="alert alert-danger">
-                    <strong>Por favor corrige los errores en el formulario:</strong>
-                    <ul>
-                        {% for field in form %}
-                            {% for error in field.errors %}
-                                <li>{{ field.label }}: {{ error }}</li>
-                            {% endfor %}
-                        {% endfor %}
-                        {% for error in form.non_field_errors %}
-                            <li>{{ error }}</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-                {% endif %}
-                
-                <div class="row">
-                    <!-- Tipo de transacción -->
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="{{ form.tipo.id_for_label }}">{{ form.tipo.label }}</label>
-                            {{ form.tipo }}
-                            {% if form.tipo.help_text %}
-                                <small class="form-text text-muted">{{ form.tipo.help_text }}</small>
-                            {% endif %}
-                        </div>
-                    </div>
-                    
-                    <!-- Categoría -->
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="{{ form.categoria.id_for_label }}">{{ form.categoria.label }}</label>
-                            {{ form.categoria }}
-                            {% if form.categoria.help_text %}
-                                <small class="form-text text-muted">{{ form.categoria.help_text }}</small>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="row">
-                    <!-- Fecha -->
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="{{ form.fecha.id_for_label }}">{{ form.fecha.label }}</label>
-                            {{ form.fecha }}
-                            {% if form.fecha.help_text %}
-                                <small class="form-text text-muted">{{ form.fecha.help_text }}</small>
-                            {% endif %}
-                        </div>
-                    </div>
-                    
-                    <!-- Monto -->
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="{{ form.monto.id_for_label }}">{{ form.monto.label }}</label>
-                            {{ form.monto }}
-                            {% if form.monto.help_text %}
-                                <small class="form-text text-muted">{{ form.monto.help_text }}</small>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Descripción -->
-                <div class="form-group">
-                    <label for="{{ form.descripcion.id_for_label }}">{{ form.descripcion.label }}</label>
-                    {{ form.descripcion }}
-                    {% if form.descripcion.help_text %}
-                        <small class="form-text text-muted">{{ form.descripcion.help_text }}</small>
-                    {% endif %}
-                </div>
-                
-                <!-- Comprobante -->
-                <div class="form-group">
-                    <label for="{{ form.comprobante.id_for_label }}">{{ form.comprobante.label }}</label>
-                    {{ form.comprobante }}
-                    {% if form.comprobante.help_text %}
-                        <small class="form-text text-muted">{{ form.comprobante.help_text }}</small>
-                    {% endif %}
-                    {% if transaccion and transaccion.comprobante %}
-                        <p class="mt-2">
-                            Comprobante actual: 
-                            <a href="{{ transaccion.comprobante.url }}" target="_blank">Ver comprobante</a>
-                        </p>
-                    {% endif %}
-                </div>
-                
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Guardar
-                    </button>
-                    <button type="submit" name="guardar_continuar" class="btn btn-success">
-                        <i class="fas fa-plus"></i> Guardar y Agregar Otra
-                    </button>
-                    <a href="{% url 'finanzas:lista_transacciones' %}" class="btn btn-secondary">
-                        <i class="fas fa-times"></i> Cancelar
-                    </a>
-                </div>
-            </form>
+    <form method="post" enctype="multipart/form-data" id="transaccion-form">
+        {% csrf_token %}
+        
+        {% if form.errors %}
+        <div class="alert alert-danger">
+            <strong>Por favor corrige los errores:</strong>
+            <ul style="margin: 8px 0 0 0; padding-left: 20px;">
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <li>{{ field.label }}: {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+                {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
         </div>
-    </div>
+        {% endif %}
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="{{ form.tipo.id_for_label }}">{{ form.tipo.label }}</label>
+                    {{ form.tipo }}
+                    {% if form.tipo.help_text %}
+                        <small class="help-text">{{ form.tipo.help_text }}</small>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="{{ form.categoria.id_for_label }}">{{ form.categoria.label }}</label>
+                    {{ form.categoria }}
+                    {% if form.categoria.help_text %}
+                        <small class="help-text">{{ form.categoria.help_text }}</small>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="{{ form.fecha.id_for_label }}">{{ form.fecha.label }}</label>
+                    {{ form.fecha }}
+                    {% if form.fecha.help_text %}
+                        <small class="help-text">{{ form.fecha.help_text }}</small>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="{{ form.monto.id_for_label }}">{{ form.monto.label }}</label>
+                    {{ form.monto }}
+                    {% if form.monto.help_text %}
+                        <small class="help-text">{{ form.monto.help_text }}</small>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.descripcion.id_for_label }}">{{ form.descripcion.label }}</label>
+            {{ form.descripcion }}
+            {% if form.descripcion.help_text %}
+                <small class="help-text">{{ form.descripcion.help_text }}</small>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.comprobante.id_for_label }}">{{ form.comprobante.label }}</label>
+            {{ form.comprobante }}
+            {% if form.comprobante.help_text %}
+                <small class="help-text">{{ form.comprobante.help_text }}</small>
+            {% endif %}
+            {% if transaccion and transaccion.comprobante %}
+                <p class="mt-2" style="font-size: 0.85rem;">
+                    Comprobante actual: 
+                    <a href="{{ transaccion.comprobante.url }}" target="_blank">Ver comprobante</a>
+                </p>
+            {% endif %}
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-check"></i> Guardar
+            </button>
+            <button type="submit" name="guardar_continuar" class="btn btn-success">
+                <i class="fas fa-plus"></i> Guardar y Agregar Otra
+            </button>
+            <a href="{% url 'finanzas:lista_transacciones' %}" class="btn btn-secondary">
+                Cancelar
+            </a>
+        </div>
+    </form>
 </div>
 {% endblock %}
 
 {% block extrajs %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Optimización: eliminar polling innecesario
         const form = document.getElementById('transaccion-form');
+        if (!form) return;
         
-        if (form) {
-            // Agregar clases Bootstrap a los campos
-            const inputs = form.querySelectorAll('input, select, textarea');
-            inputs.forEach(input => {
-                input.classList.add('form-control');
-                // Forzar estilos oscuros en cada elemento
-                input.style.backgroundColor = '#2D2D3A';
-                input.style.color = '#E2E2E2';
-                input.style.borderColor = '#3F3F50';
-            });
-            
-            // Función para actualizar las categorías según el tipo
-            const tipoSelect = document.getElementById('{{ form.tipo.id_for_label }}');
-            const categoriaSelect = document.getElementById('{{ form.categoria.id_for_label }}');
-            
-            if (tipoSelect && categoriaSelect) {
-                // Aplicar estilos específicamente a estos selectores
-                tipoSelect.style.backgroundColor = '#2D2D3A';
-                tipoSelect.style.color = '#E2E2E2';
-                tipoSelect.style.borderColor = '#3F3F50';
-                
-                categoriaSelect.style.backgroundColor = '#2D2D3A';
-                categoriaSelect.style.color = '#E2E2E2';
-                categoriaSelect.style.borderColor = '#3F3F50';
-                
-                tipoSelect.addEventListener('change', function() {
-                    const tipo = this.value;
-                    if (tipo) {
-                        fetch(`{% url 'finanzas:filtrar_categorias' %}?tipo=${tipo}`)
-                            .then(response => response.json())
-                            .then(data => {
-                                // Guardar el valor seleccionado actualmente
-                                const valorSeleccionado = categoriaSelect.value;
-                                
-                                // Limpiar y rellenar el select de categorías
-                                categoriaSelect.innerHTML = '';
-                                data.categorias.forEach(cat => {
-                                    const option = document.createElement('option');
-                                    option.value = cat.id;
-                                    option.textContent = cat.nombre;
-                                    // Restaurar la selección si coincide
-                                    if (cat.id == valorSeleccionado) {
-                                        option.selected = true;
-                                    }
-                                    categoriaSelect.appendChild(option);
-                                });
-                                
-                                // Re-aplicar estilos después de actualizar las opciones
-                                categoriaSelect.style.backgroundColor = '#2D2D3A';
-                                categoriaSelect.style.color = '#E2E2E2';
-                                categoriaSelect.style.borderColor = '#3F3F50';
+        // Add form-control class to Django-rendered inputs
+        form.querySelectorAll('input, select, textarea').forEach(el => {
+            el.classList.add('form-control');
+        });
+        
+        // Category filtering by type
+        const tipoSelect = document.getElementById('{{ form.tipo.id_for_label }}');
+        const categoriaSelect = document.getElementById('{{ form.categoria.id_for_label }}');
+        
+        if (tipoSelect && categoriaSelect) {
+            tipoSelect.addEventListener('change', function() {
+                const tipo = this.value;
+                if (tipo) {
+                    fetch(`{% url 'finanzas:filtrar_categorias' %}?tipo=${tipo}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            const valorSeleccionado = categoriaSelect.value;
+                            categoriaSelect.innerHTML = '';
+                            data.categorias.forEach(cat => {
+                                const option = document.createElement('option');
+                                option.value = cat.id;
+                                option.textContent = cat.nombre;
+                                if (cat.id == valorSeleccionado) {
+                                    option.selected = true;
+                                }
+                                categoriaSelect.appendChild(option);
                             });
-                    }
-                });
-            }
-            
-            // Forzar estilos en elementos específicos
-            const fechaInput = document.getElementById('{{ form.fecha.id_for_label }}');
-            const montoInput = document.getElementById('{{ form.monto.id_for_label }}');
-            const descripcionInput = document.getElementById('{{ form.descripcion.id_for_label }}');
-            const comprobanteInput = document.getElementById('{{ form.comprobante.id_for_label }}');
-            
-            // Aplicar estilos a todos los elementos, incluso si los anteriores fallan
-            [fechaInput, montoInput, descripcionInput, comprobanteInput].forEach(function(el) {
-                if (el) {
-                    el.style.backgroundColor = '#2D2D3A';
-                    el.style.color = '#E2E2E2';
-                    el.style.borderColor = '#3F3F50';
-                }
-            });
-            
-            // Usar MutationObserver en lugar de setInterval
-            const observer = new MutationObserver(function(mutations) {
-                mutations.forEach(function(mutation) {
-                    if (mutation.addedNodes.length) {
-                        mutation.addedNodes.forEach(function(node) {
-                            if (node.nodeType === 1) { // Solo elementos
-                                const elements = node.querySelectorAll ? 
-                                    node.querySelectorAll('input, select, textarea, .form-control, .custom-select, .custom-file-input') : [];
-                                elements.forEach(el => {
-                                    el.style.backgroundColor = '#2D2D3A';
-                                    el.style.color = '#E2E2E2';
-                                    el.style.borderColor = '#3F3F50';
-                                });
-                            }
                         });
-                    }
-                });
-            });
-            
-            observer.observe(document.body, {
-                childList: true,
-                subtree: true
+                }
             });
         }
     });
 </script>
-
-<!-- Script adicional para forzar estilos directamente en el HTML generado -->
-<style>
-    /* Estilos críticos con !important para máxima prioridad */
-    input, select, textarea, .form-control, .custom-select, .custom-file-input {
-        background-color: #2D2D3A !important;
-        color: #E2E2E2 !important;
-        border-color: #3F3F50 !important;
-    }
-    
-    /* Específicamente para los inputs de tipo date y similares */
-    input[type="date"], input[type="datetime-local"] {
-        color-scheme: dark !important;
-    }
-    
-    /* Selector de archivos */
-    .custom-file-label {
-        background-color: #2D2D3A !important;
-        color: #E2E2E2 !important;
-        border-color: #3F3F50 !important;
-    }
-    
-    .custom-file-label::after {
-        background-color: #1E1E26 !important;
-        color: #E2E2E2 !important;
-        border-color: #3F3F50 !important;
-    }
-</style>
 {% endblock %}

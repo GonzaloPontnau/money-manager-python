@@ -52,7 +52,7 @@
                 <label for="{{ form.concepto.id_for_label }}">Concepto</label>
                 <div class="input-group">
                     <div class="input-icon">
-                        <i class="fas fa-comment-alt"></i>
+                        <i class="fas fa-comment"></i>
                     </div>
                     {{ form.concepto }}
                 </div>
@@ -67,10 +67,10 @@
             
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-paper-plane mr-2"></i>Realizar Transferencia
+                    <i class="fas fa-paper-plane"></i> Realizar Transferencia
                 </button>
                 <a href="{% url 'finanzas:lista_transferencias' %}" class="btn btn-secondary">
-                    <i class="fas fa-times mr-2"></i>Cancelar
+                    Cancelar
                 </a>
             </div>
         </form>
@@ -78,165 +78,13 @@
 </div>
 {% endblock %}
 
-{% block extracss %}
-<style>
-    .form-container {
-        background-color: var(--medium-dark);
-        border-radius: var(--border-radius);
-        box-shadow: var(--card-shadow);
-        padding: 35px;
-        max-width: 600px;
-        margin: 0 auto;
-        border: 1px solid var(--border-color);
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .form-container::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 4px;
-        background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
-    }
-    
-    .form-group {
-        margin-bottom: 25px;
-    }
-    
-    .form-group label {
-        display: block;
-        margin-bottom: 8px;
-        font-weight: 500;
-        color: var(--text-color);
-    }
-    
-    .input-group {
-        display: flex;
-        position: relative;
-    }
-    
-    .input-icon {
-        position: absolute;
-        left: 12px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: var(--text-muted);
-    }
-    
-    .transferencia-form input, .transferencia-form textarea {
-        width: 100%;
-        padding: 12px 12px 12px 40px;
-        background-color: var(--light-dark);
-        color: var(--text-color);
-        border: 1px solid var(--border-color);
-        border-radius: var(--border-radius);
-        transition: all 0.3s ease;
-    }
-    
-    .transferencia-form input:focus, .transferencia-form textarea:focus {
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 2px rgba(108, 92, 231, 0.2);
-        outline: none;
-    }
-    
-    .error-message {
-        color: var(--danger-color);
-        font-size: 0.85rem;
-        margin-top: 5px;
-    }
-    
-    .help-text {
-        color: var(--text-muted);
-        font-size: 0.85rem;
-        margin-top: 5px;
-    }
-    
-    .form-actions {
-        display: flex;
-        gap: 15px;
-        margin-top: 30px;
-    }
-    
-    .btn-secondary {
-        background: var(--light-dark);
-        color: var(--text-color);
-    }
-    
-    .btn-secondary:hover {
-        background: var(--border-color);
-    }
-</style>
-{% endblock %}
-
 {% block extrajs %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Optimización: eliminar polling innecesario y aplicar estilos de una vez
-        const form = document.querySelector('form');
-        if (form) {
-            // Seleccionar todos los inputs, selects y textareas
-            const formElements = form.querySelectorAll('input, select, textarea');
-            formElements.forEach(el => {
-                // Aplicar estilo oscuro
-                el.style.backgroundColor = '#2D2D3A';
-                el.style.color = '#E2E2E2';
-                el.style.borderColor = '#3F3F50';
-            });
-            
-            // Aplicar estilos a elementos dinámicos una sola vez (no usar setInterval)
-            document.querySelectorAll('input, select, textarea, .form-control').forEach(el => {
-                el.style.backgroundColor = '#2D2D3A';
-                el.style.color = '#E2E2E2';
-                el.style.borderColor = '#3F3F50';
-            });
-            
-            // Agregar un MutationObserver para detectar nuevos elementos DOM y estilizarlos
-            const observer = new MutationObserver(function(mutations) {
-                mutations.forEach(function(mutation) {
-                    if (mutation.addedNodes.length) {
-                        mutation.addedNodes.forEach(function(node) {
-                            if (node.nodeType === 1) { // Solo elementos
-                                const elements = node.querySelectorAll ? 
-                                    node.querySelectorAll('input, select, textarea, .form-control') : [];
-                                elements.forEach(el => {
-                                    el.style.backgroundColor = '#2D2D3A';
-                                    el.style.color = '#E2E2E2';
-                                    el.style.borderColor = '#3F3F50';
-                                });
-                            }
-                        });
-                    }
-                });
-            });
-            
-            // Configurar el observer para que observe cambios en el DOM del formulario
-            observer.observe(form, {
-                childList: true,
-                subtree: true
-            });
-        }
+        // Add form-control class to Django-rendered inputs
+        document.querySelectorAll('.transferencia-form input, .transferencia-form textarea').forEach(el => {
+            el.classList.add('form-control');
+        });
     });
 </script>
-
-<!-- Estilos para forzar el tema oscuro en los elementos de formulario -->
-<style>
-    input, select, textarea, .form-control, .custom-select {
-        background-color: #2D2D3A !important;
-        color: #E2E2E2 !important;
-        border-color: #3F3F50 !important;
-    }
-    
-    /* Específicamente para los inputs de tipo date y similares */
-    input[type="date"], input[type="datetime-local"] {
-        color-scheme: dark !important;
-    }
-    
-    /* Selectores personalizados */
-    .custom-select {
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'%3e%3cpath fill='%23e2e2e2' d='M2 0L0 2h4zm0 5L0 3h4z'/%3e%3c/svg%3e") !important;
-    }
-</style>
 {% endblock %}

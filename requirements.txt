@@ -8,3 +8,5 @@ gunicorn
 sqlparse>=0.4.0
 asgiref>=3.3.0
 pymysql
+requests>=2.31.0
+qdrant-client>=1.7.0

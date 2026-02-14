@@ -44,6 +44,7 @@ def db_status(request):
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('chatbot/', include('chatbot.urls')),  # Chatbot FinBot
     path('', include('finanzas.urls')),
     path('db-status/', db_status, name='db_status'),  # URL para verificar la conexión a la BD
 ]

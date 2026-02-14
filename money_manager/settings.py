@@ -132,6 +132,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'finanzas.apps.FinanzasConfig',  # Nuestra aplicación
+    'chatbot.apps.ChatbotConfig',  # Chatbot financiero FinBot
 ]
 
 MIDDLEWARE = [
@@ -253,3 +254,12 @@ CACHES = {
         'LOCATION': 'money-manager-cache',
     }
 }
+
+# Chatbot FinBot - Configuración de servicios externos
+GROQ_API_KEY = os.environ.get('GROQ_API_KEY', '')
+GROQ_MODEL = os.environ.get('GROQ_MODEL', 'openai/gpt-oss-120')
+QDRANT_URL = os.environ.get('QDRANT_URL', '')
+QDRANT_API_KEY = os.environ.get('QDRANT_API_KEY', '')
+HF_API_TOKEN = os.environ.get('HF_API_TOKEN', '')
+CHATBOT_MAX_HISTORY = 10
+CHATBOT_MAX_TOKENS = 1024
