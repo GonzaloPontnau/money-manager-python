@@ -183,7 +183,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Chart de torta (doughnut)
+    // Chart de torta (doughnut) — legend abajo, contenido en el wrapper
     var gastosChart = new Chart(gastosCtx, {
         type: 'doughnut',
         data: {
@@ -197,20 +197,25 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
+            layout: {
+                padding: { top: 8, bottom: 8, left: 8, right: 8 }
+            },
             plugins: {
                 legend: {
                     display: true,
-                    position: 'right',
+                    position: 'bottom',
+                    align: 'center',
                     labels: {
                         font: { family: 'Inter', size: 12 },
                         color: '#8888A0',
-                        boxWidth: 15,
-                        padding: 15
+                        boxWidth: 12,
+                        padding: 12,
+                        usePointStyle: true,
+                        pointStyle: 'circle'
                     }
                 },
-                title: {
-                    display: false
-                }
+                title: { display: false }
             }
         }
     });

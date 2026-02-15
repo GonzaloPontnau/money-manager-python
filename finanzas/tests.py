@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import timezone
 
 from finanzas.forms import TransferenciaForm
 from finanzas.models import Categoria, Transferencia, Transaccion
@@ -96,3 +97,91 @@ class SecurityAndTransferTests(TestCase):
         self.assertIn("ingresos_totales", payload)
         self.assertIn("gastos_totales", payload)
         self.assertIn("balance", payload)
+
+class TransaccionTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="testuser", password="password123")
+        self.client.login(username="testuser", password="password123")
+        
+        self.categoria_ingreso, _ = Categoria.objects.get_or_create(
+            usuario=self.user,
+            nombre="Salario",
+            defaults={"tipo": "ingreso"}
+        )
+        self.categoria_gasto, _ = Categoria.objects.get_or_create(
+            usuario=self.user,
+            nombre="Comida",
+            defaults={"tipo": "gasto"}
+        )
+
+    def test_lista_transacciones(self):
+        # Crear transacciones de prueba
+        Transaccion.objects.create(
+            usuario=self.user,
+            monto=1000,
+            tipo="ingreso",
+            categoria=self.categoria_ingreso,
+            descripcion="Ingreso prueba"
+        )
+        Transaccion.objects.create(
+            usuario=self.user,
+            monto=50,
+            tipo="gasto",
+            categoria=self.categoria_gasto,
+            descripcion="Gasto prueba"
+        )
+        
+        response = self.client.get(reverse("finanzas:lista_transacciones"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Ingreso prueba")
+        self.assertContains(response, "Gasto prueba")
+        self.assertEqual(len(response.context["transacciones"]), 2)
+
+    def test_agregar_ingreso(self):
+        url = reverse("finanzas:nueva_transaccion")
+        data = {
+            "monto": "2000.00",
+            "tipo": "ingreso",
+            "categoria": self.categoria_ingreso.id,
+            "descripcion": "Nuevo ingreso",
+            "fecha": timezone.now().strftime("%Y-%m-%dT%H:%M"),
+        }
+        
+        response = self.client.post(url, data)
+        # Debería redirigir a la lista de transacciones
+        self.assertRedirects(response, reverse("finanzas:lista_transacciones"))
+        
+        # Verificar que se creó
+        self.assertTrue(Transaccion.objects.filter(descripcion="Nuevo ingreso", monto=2000).exists())
+
+    def test_agregar_gasto(self):
+        url = reverse("finanzas:nueva_transaccion")
+        data = {
+            "monto": "150.50",
+            "tipo": "gasto",
+            "categoria": self.categoria_gasto.id,
+            "descripcion": "Nuevo gasto",
+            "fecha": timezone.now().strftime("%Y-%m-%dT%H:%M"),
+        }
+        
+        response = self.client.post(url, data)
+        self.assertRedirects(response, reverse("finanzas:lista_transacciones"))
+        
+        self.assertTrue(Transaccion.objects.filter(descripcion="Nuevo gasto", monto=150.50).exists())
+
+    def test_agregar_transaccion_monto_invalido(self):
+        url = reverse("finanzas:nueva_transaccion")
+        # Monto negativo/cero debería fallar si hay validación en form/model
+        # El modelo tiene check constraint monto__gt=0
+        data = {
+            "monto": "-50.00",
+            "tipo": "gasto",
+            "categoria": self.categoria_gasto.id,
+            "descripcion": "Gasto invalido",
+            "fecha": timezone.now().strftime("%Y-%m-%dT%H:%M"),
+        }
+        
+        response = self.client.post(url, data)
+        # Si el form valida, debería volver a mostrar el formulario con errores (status 200), no redirigir
+        self.assertEqual(response.status_code, 200) 
+        self.assertFalse(Transaccion.objects.filter(descripcion="Gasto invalido").exists())
