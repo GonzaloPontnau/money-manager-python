@@ -1,0 +1,24 @@
+﻿[tool.black]
+line-length = 100
+target-version = ["py312"]
+
+[tool.isort]
+profile = "black"
+line_length = 100
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+exclude = ["myenv", "venv", ".venv", "frontend-web/node_modules", "frontend-web/.next"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "W"]
+
+[tool.mypy]
+python_version = "3.12"
+ignore_missing_imports = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_return_any = true
+check_untyped_defs = true
+exclude = "(myenv|venv|\\.venv|frontend-web/node_modules|frontend-web/.next)"

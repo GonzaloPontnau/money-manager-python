@@ -1,0 +1,14 @@
+﻿__pycache__/
+*.py[cod]
+*.sqlite3
+*.log
+.venv/
+venv/
+myenv/
+.env
+.git/
+.gitignore
+media/
+staticfiles/
+frontend-web/node_modules/
+frontend-web/.next/
