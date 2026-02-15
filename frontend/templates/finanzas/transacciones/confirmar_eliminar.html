@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Eliminar Transacción - Money Manager{% endblock %}
+
+{% block content %}
+<div class="delete-confirmation-container">
+    <div class="card">
+        <div class="card-header" style="background-color: var(--danger-subtle); border-bottom: 1px solid rgba(248, 113, 113, 0.15);">
+            <h2 style="color: var(--danger); font-size: 1.1rem; font-weight: 600;">
+                <i class="fas fa-triangle-exclamation mr-2"></i>Confirmar Eliminación
+            </h2>
+        </div>
+        
+        <div class="card-body">
+            <div class="alert alert-warning">
+                <h4 class="alert-heading">¡Atención!</h4>
+                <p>Estás a punto de eliminar la siguiente transacción:</p>
+                
+                <div class="transaction-summary">
+                    <p><strong>Tipo:</strong> {{ transaccion.get_tipo_display }}</p>
+                    <p><strong>Fecha:</strong> {{ transaccion.fecha|date:"d/m/Y" }}</p>
+                    <p><strong>Monto:</strong> {{ transaccion.monto }}</p>
+                    <p><strong>Categoría:</strong> {{ transaccion.categoria.nombre|default:"Sin categoría" }}</p>
+                    {% if transaccion.descripcion %}
+                    <p><strong>Descripción:</strong> {{ transaccion.descripcion }}</p>
+                    {% endif %}
+                </div>
+                
+                <p class="mb-0">Esta acción no se puede deshacer. ¿Estás seguro que deseas continuar?</p>
+            </div>
+            
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Sí, eliminar
+                    </button>
+                    <a href="{% url 'finanzas:detalle_transaccion' transaccion.id %}" class="btn btn-secondary">
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

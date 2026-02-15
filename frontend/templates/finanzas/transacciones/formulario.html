@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} - Money Manager{% endblock %}
+
+{% block content %}
+<div class="form-container" style="max-width: 700px;">
+    <div class="form-header">
+        <h1>{{ title }}</h1>
+        <a href="{% url 'finanzas:lista_transacciones' %}" class="btn btn-outline-primary btn-sm">
+            <i class="fas fa-arrow-left"></i> Volver
+        </a>
+    </div>
+    
+    <form method="post" enctype="multipart/form-data" id="transaccion-form">
+        {% csrf_token %}
+        
+        {% if form.errors %}
+        <div class="alert alert-danger">
+            <strong>Por favor corrige los errores:</strong>
+            <ul style="margin: 8px 0 0 0; padding-left: 20px;">
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <li>{{ field.label }}: {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+                {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="{{ form.tipo.id_for_label }}">{{ form.tipo.label }}</label>
+                    {{ form.tipo }}
+                    {% if form.tipo.help_text %}
+                        <small class="help-text">{{ form.tipo.help_text }}</small>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="{{ form.categoria.id_for_label }}">{{ form.categoria.label }}</label>
+                    {{ form.categoria }}
+                    {% if form.categoria.help_text %}
+                        <small class="help-text">{{ form.categoria.help_text }}</small>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="{{ form.fecha.id_for_label }}">{{ form.fecha.label }}</label>
+                    {{ form.fecha }}
+                    {% if form.fecha.help_text %}
+                        <small class="help-text">{{ form.fecha.help_text }}</small>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="{{ form.monto.id_for_label }}">{{ form.monto.label }}</label>
+                    {{ form.monto }}
+                    {% if form.monto.help_text %}
+                        <small class="help-text">{{ form.monto.help_text }}</small>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.descripcion.id_for_label }}">{{ form.descripcion.label }}</label>
+            {{ form.descripcion }}
+            {% if form.descripcion.help_text %}
+                <small class="help-text">{{ form.descripcion.help_text }}</small>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.comprobante.id_for_label }}">{{ form.comprobante.label }}</label>
+            {{ form.comprobante }}
+            {% if form.comprobante.help_text %}
+                <small class="help-text">{{ form.comprobante.help_text }}</small>
+            {% endif %}
+            {% if transaccion and transaccion.comprobante %}
+                <p class="mt-2" style="font-size: 0.85rem;">
+                    Comprobante actual: 
+                    <a href="{{ transaccion.comprobante.url }}" target="_blank">Ver comprobante</a>
+                </p>
+            {% endif %}
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-check"></i> Guardar
+            </button>
+            <button type="submit" name="guardar_continuar" class="btn btn-success">
+                <i class="fas fa-plus"></i> Guardar y Agregar Otra
+            </button>
+            <a href="{% url 'finanzas:lista_transacciones' %}" class="btn btn-secondary">
+                Cancelar
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extrajs %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('transaccion-form');
+        if (!form) return;
+        
+        // Add form-control class to Django-rendered inputs
+        form.querySelectorAll('input, select, textarea').forEach(el => {
+            el.classList.add('form-control');
+        });
+        
+        // Category filtering by type
+        const tipoSelect = document.getElementById('{{ form.tipo.id_for_label }}');
+        const categoriaSelect = document.getElementById('{{ form.categoria.id_for_label }}');
+        
+        if (tipoSelect && categoriaSelect) {
+            tipoSelect.addEventListener('change', function() {
+                const tipo = this.value;
+                if (tipo) {
+                    fetch(`{% url 'finanzas:filtrar_categorias' %}?tipo=${tipo}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            const valorSeleccionado = categoriaSelect.value;
+                            categoriaSelect.innerHTML = '';
+                            data.categorias.forEach(cat => {
+                                const option = document.createElement('option');
+                                option.value = cat.id;
+                                option.textContent = cat.nombre;
+                                if (cat.id == valorSeleccionado) {
+                                    option.selected = true;
+                                }
+                                categoriaSelect.appendChild(option);
+                            });
+                        });
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

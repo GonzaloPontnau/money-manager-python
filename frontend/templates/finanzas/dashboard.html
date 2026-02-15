@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Dashboard - Money Manager{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1>Dashboard Financiero</h1>
+    </div>
+
+    <div class="dashboard-grid">
+        <!-- Left Column: Summary + Actions -->
+        <div class="left-column">
+            <!-- Financial Summary -->
+            <div class="financial-summary">
+                <div class="summary-card income">
+                    <h3><i class="fas fa-arrow-up mr-2"></i>Ingresos</h3>
+                    <p class="amount">{{ ingresos_totales }}</p>
+                </div>
+                
+                <div class="summary-card expenses">
+                    <h3><i class="fas fa-arrow-down mr-2"></i>Gastos</h3>
+                    <p class="amount">{{ gastos_totales }}</p>
+                </div>
+                
+                <div class="summary-card balance">
+                    <h3><i class="fas fa-scale-balanced mr-2"></i>Balance</h3>
+                    <p class="amount {% if balance >= 0 %}positive{% else %}negative{% endif %}">
+                        {{ balance }}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <h2>Acciones Rápidas</h2>
+                <div class="actions-grid">
+                    <a href="{% url 'finanzas:nueva_transaccion' %}?tipo=ingreso" class="action-card income">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>Ingreso</span>
+                    </a>
+                    <a href="{% url 'finanzas:nueva_transaccion' %}?tipo=gasto" class="action-card expense">
+                        <i class="fas fa-minus-circle"></i>
+                        <span>Gasto</span>
+                    </a>
+                    <a href="{% url 'finanzas:lista_transacciones' %}" class="action-card list">
+                        <i class="fas fa-list"></i>
+                        <span>Ver Todo</span>
+                    </a>
+                    <a href="{% url 'finanzas:nueva_transferencia' %}" class="action-card transfer">
+                        <i class="fas fa-exchange-alt"></i>
+                        <span>Transferir</span>
+                    </a>
+                    <form method="post" action="{% url 'finanzas:cargar_datos_demo' %}" class="demo-action-form">
+                        {% csrf_token %}
+                        <button type="submit" class="action-card demo">
+                            <i class="fas fa-flask"></i>
+                            <span>Try demo app test</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Charts + Recent Transactions -->
+        <div class="right-column">
+            <div class="charts-row">
+                <div class="chart-container">
+                    <h2>Ingresos vs Gastos</h2>
+                    <div class="chart-wrapper">
+                        <canvas id="balanceChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <h2>Distribución de Gastos</h2>
+                    <div class="chart-wrapper">
+                        <canvas id="gastosChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            {% if tiene_datos_demo %}
+            <p class="demo-notice"><i class="fas fa-info-circle"></i> Los datos mostrados son de ejemplo para demostración de la aplicación.</p>
+            {% endif %}
+            <div class="recent-transactions">
+                <div class="section-header">
+                    <h2>Últimas Transacciones</h2>
+                    <a href="{% url 'finanzas:lista_transacciones' %}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-list"></i> Ver
+                    </a>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Descripción</th>
+                                <th>Tipo</th>
+                                <th>Monto</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for t in transacciones %}
+                            <tr class="{{ t.tipo|lower }}">
+                                <td>{{ t.fecha|date:"d/m" }}</td>
+                                <td>{{ t.descripcion|default:"Sin descripción" }}</td>
+                                <td>
+                                    {% if t.tipo == 'ingreso' %}
+                                        <span class="badge badge-success"><i class="fas fa-arrow-up"></i></span>
+                                    {% else %}
+                                        <span class="badge badge-danger"><i class="fas fa-arrow-down"></i></span>
+                                    {% endif %}
+                                </td>
+                                <td class="amount">{{ t.monto }}</td>
+                                <td>
+                                    <a href="{% url 'finanzas:detalle_transaccion' t.id %}" class="btn btn-info btn-sm icon-only">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5">
+                                    <div class="empty-state">
+                                        <i class="fas fa-receipt"></i>
+                                        <p>Sin transacciones</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrajs %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Inicialización de ambos charts
+    const balanceCtx = document.getElementById('balanceChart').getContext('2d');
+    const gastosCtx = document.getElementById('gastosChart').getContext('2d');
+
+    // Datos iniciales desde el template
+    var ingresosValue = parseFloat("{{ ingresos_totales|floatformat:2 }}".replace(',', '.'));
+    var gastosValue = parseFloat("{{ gastos_totales|floatformat:2 }}".replace(',', '.'));
+    var gastosPorCategoria = JSON.parse('{{ gastos_por_categoria_json|escapejs }}');
+
+    // Chart de barras
+    var balanceChart = new Chart(balanceCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Ingresos', 'Gastos'],
+            datasets: [{
+                label: 'Monto',
+                data: [ingresosValue, gastosValue],
+                backgroundColor: [
+                    'rgba(52, 168, 83, 0.15)',
+                    'rgba(214, 69, 69, 0.15)'
+                ],
+                borderColor: [
+                    'rgba(52, 168, 83, 0.8)',
+                    'rgba(214, 69, 69, 0.8)'
+                ],
+                borderWidth: 1,
+                borderRadius: 8,
+                barPercentage: 0.5
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(255,255,255,0.03)', drawBorder: false },
+                    ticks: { color: '#8888A0', font: { family: 'Inter', size: 11 } }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: { color: '#8888A0', font: { family: 'Inter', size: 12, weight: 500 } }
+                }
+            },
+            plugins: { legend: { display: false }, title: { display: false } }
+        }
+    });
+
+    // Chart de torta (doughnut)
+    var gastosChart = new Chart(gastosCtx, {
+        type: 'doughnut',
+        data: {
+            labels: gastosPorCategoria.map(c => c.nombre),
+            datasets: [{
+                data: gastosPorCategoria.map(c => c.monto),
+                backgroundColor: gastosPorCategoria.map(c => c.color),
+                borderColor: gastosPorCategoria.map(c => c.color),
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'bottom',
+                    labels: {
+                        font: { family: 'Inter', size: 12 },
+                        color: '#8888A0'
+                    }
+                },
+                title: {
+                    display: false
+                }
+            }
+        }
+    });
+
+    // Polling para actualización en "tiempo real"
+    function refreshDashboardData() {
+        fetch('/api/dashboard-data/')
+            .then(resp => resp.json())
+            .then(data => {
+                // Actualizar chart de barras
+                balanceChart.data.datasets[0].data = [data.ingresos_totales, data.gastos_totales];
+                balanceChart.update();
+                // Actualizar chart de torta
+                gastosChart.data.labels = data.gastos_por_categoria.map(c => c.nombre);
+                gastosChart.data.datasets[0].data = data.gastos_por_categoria.map(c => c.monto);
+                gastosChart.data.datasets[0].backgroundColor = data.gastos_por_categoria.map(c => c.color);
+                gastosChart.data.datasets[0].borderColor = data.gastos_por_categoria.map(c => c.color);
+                gastosChart.update();
+            });
+    }
+    window.refreshDashboardData = refreshDashboardData;
+    setInterval(refreshDashboardData, 30000); // cada 30 segundos
+});
+</script>
+{% endblock %}

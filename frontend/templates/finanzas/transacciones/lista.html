@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Transacciones - Money Manager{% endblock %}
+
+{% block content %}
+<div class="transactions-container">
+    <div class="section-header">
+        <h1>Mis Transacciones</h1>
+        <div class="action-buttons">
+            <a href="{% url 'finanzas:nueva_transaccion' %}?tipo=ingreso" class="btn btn-success">
+                <i class="fas fa-plus"></i> Nuevo Ingreso
+            </a>
+            <a href="{% url 'finanzas:nueva_transaccion' %}?tipo=gasto" class="btn btn-danger">
+                <i class="fas fa-minus"></i> Nuevo Gasto
+            </a>
+        </div>
+    </div>
+    
+    <!-- Financial Summary -->
+    <div class="financial-summary">
+        <div class="summary-card income">
+            <h3><i class="fas fa-arrow-up mr-2"></i>Ingresos</h3>
+            <p class="amount">{{ ingresos_totales }}</p>
+        </div>
+        
+        <div class="summary-card expenses">
+            <h3><i class="fas fa-arrow-down mr-2"></i>Gastos</h3>
+            <p class="amount">{{ gastos_totales }}</p>
+        </div>
+        
+        <div class="summary-card balance">
+            <h3><i class="fas fa-scale-balanced mr-2"></i>Balance</h3>
+            <p class="amount {% if balance >= 0 %}positive{% else %}negative{% endif %}">
+                {{ balance }}
+            </p>
+        </div>
+    </div>
+    
+    <!-- Filters -->
+    <div class="filters-container">
+        <form method="get" id="filter-form">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="tipo">Tipo</label>
+                        <select name="tipo" id="tipo" class="form-control" onchange="document.getElementById('filter-form').submit()">
+                            <option value="">Todos</option>
+                            <option value="ingreso" {% if tipo_seleccionado == 'ingreso' %}selected{% endif %}>Ingresos</option>
+                            <option value="gasto" {% if tipo_seleccionado == 'gasto' %}selected{% endif %}>Gastos</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="categoria">Categoría</label>
+                        <select name="categoria" id="categoria" class="form-control" onchange="document.getElementById('filter-form').submit()">
+                            <option value="">Todas</option>
+                            {% for cat in categorias %}
+                            <option value="{{ cat.id }}" {% if categoria_seleccionada == cat.id|stringformat:"i" %}selected{% endif %}>
+                                {{ cat.nombre }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group" style="padding-top: 22px;">
+                        <div class="action-buttons">
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                <i class="fas fa-filter"></i> Filtrar
+                            </button>
+                            <a href="{% url 'finanzas:lista_transacciones' %}" class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-rotate"></i> Limpiar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Transaction Table -->
+    <div class="transactions-table">
+        {% if transacciones %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Descripción</th>
+                    <th>Categoría</th>
+                    <th>Tipo</th>
+                    <th>Monto</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in transacciones %}
+                <tr class="{{ t.tipo }}">
+                    <td>{{ t.fecha|date:"d/m/Y H:i" }}</td>
+                    <td>{{ t.descripcion|default:"Sin descripción" }}</td>
+                    <td>{{ t.categoria.nombre|default:"Sin categoría" }}</td>
+                    <td>
+                        <span class="badge {% if t.tipo == 'ingreso' %}badge-success{% else %}badge-danger{% endif %}">
+                            {{ t.get_tipo_display }}
+                        </span>
+                    </td>
+                    <td class="amount">{{ t.monto }}</td>
+                    <td>
+                        <div class="btn-group">
+                            <a href="{% url 'finanzas:detalle_transaccion' t.id %}" class="btn btn-info btn-sm">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{% url 'finanzas:editar_transaccion' t.id %}" class="btn btn-primary btn-sm">
+                                <i class="fas fa-pen"></i>
+                            </a>
+                            <a href="{% url 'finanzas:eliminar_transaccion' t.id %}" class="btn btn-danger btn-sm">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-receipt"></i>
+            <h3>No hay transacciones</h3>
+            <p>Agrega tus primeras transacciones para comenzar a gestionar tus finanzas.</p>
+            <div class="action-buttons" style="justify-content: center;">
+                <a href="{% url 'finanzas:nueva_transaccion' %}?tipo=ingreso" class="btn btn-success">
+                    <i class="fas fa-plus"></i> Nuevo Ingreso
+                </a>
+                <a href="{% url 'finanzas:nueva_transaccion' %}?tipo=gasto" class="btn btn-danger">
+                    <i class="fas fa-minus"></i> Nuevo Gasto
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extrajs %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const tipoSelect = document.getElementById('tipo');
+        const categoriaSelect = document.getElementById('categoria');
+        
+        if (tipoSelect && categoriaSelect) {
+            tipoSelect.addEventListener('change', function() {
+                const tipo = this.value;
+                if (tipo) {
+                    fetch(`{% url 'finanzas:filtrar_categorias' %}?tipo=${tipo}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            categoriaSelect.innerHTML = '<option value="">Todas</option>';
+                            data.categorias.forEach(cat => {
+                                const option = document.createElement('option');
+                                option.value = cat.id;
+                                option.textContent = cat.nombre;
+                                categoriaSelect.appendChild(option);
+                            });
+                        });
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}
