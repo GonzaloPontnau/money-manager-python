@@ -8,3 +8,4 @@ env
 .env
 .venv
 myenv
+pyproject.toml
