@@ -11,6 +11,15 @@ if not SECRET_KEY:
         raise ImproperlyConfigured("SECRET_KEY must be configured in production")
 
 
+
+if os.environ.get("VERCEL") == "1":
+    ALLOWED_HOSTS = ["*"]
+    # Disable manifest storage to avoid crash if collectstatic didn't run
+    STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
+    # Enable DEBUG to see the actual error trace in the browser
+    DEBUG = True
+
+# Keep these if not on Vercel or if needed
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
