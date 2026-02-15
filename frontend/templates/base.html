@@ -49,7 +49,7 @@
                     {% endif %}
                     <li><a href="{% url 'finanzas:logout' %}"><i class="fas fa-sign-out-alt"></i> Salir</a></li>
                 {% else %}
-                    <li><a href="{% url 'finanzas:register' %}"><i class="fas fa-play-circle"></i> Demo</a></li>
+                    <li><a href="{% url 'finanzas:demo' %}"><i class="fas fa-play-circle"></i> Demo</a></li>
                     <li><a href="{% url 'finanzas:login' %}"><i class="fas fa-sign-in-alt"></i> Iniciar Sesión</a></li>
                     <li><a href="{% url 'finanzas:register' %}"><i class="fas fa-user-plus"></i> Registrarse</a></li>
                 {% endif %}

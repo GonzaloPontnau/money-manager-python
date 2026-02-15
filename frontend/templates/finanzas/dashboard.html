@@ -73,7 +73,9 @@
                     </div>
                 </div>
             </div>
-            {% if tiene_datos_demo %}
+            {% if is_demo %}
+            <p class="demo-notice"><i class="fas fa-eye"></i> Modo demo (solo lectura). <a href="{% url 'finanzas:register' %}">Regístrate</a> para usar la aplicación con tus datos.</p>
+            {% elif tiene_datos_demo %}
             <p class="demo-notice"><i class="fas fa-info-circle"></i> Los datos mostrados son de ejemplo para demostración de la aplicación.</p>
             {% endif %}
             <div class="recent-transactions">
@@ -220,9 +222,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Polling para actualización en "tiempo real"
+    // Polling: demo usa API pública, dashboard normal usa API con auth
+    var apiUrl = "{% if is_demo %}{% url 'finanzas:demo_data_api' %}{% else %}{% url 'finanzas:dashboard_data_api' %}{% endif %}";
     function refreshDashboardData() {
-        fetch('/api/dashboard-data/')
+        fetch(apiUrl)
             .then(resp => resp.json())
             .then(data => {
                 // Actualizar chart de barras

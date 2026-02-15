@@ -1,4 +1,4 @@
-﻿import json
+import json
 import logging
 import random
 from datetime import timedelta
@@ -30,6 +30,22 @@ CATEGORY_COLORS = [
     "#C62828",
     "#4E342E",
 ]
+
+# Payload estático para la demo sin login
+DEMO_PAYLOAD = {
+    "ingresos_totales": 4850.0,
+    "gastos_totales": 2120.5,
+    "balance": 2729.5,
+    "gastos_por_categoria": [
+        {"id": None, "nombre": "Alimentación", "monto": 420.0, "color": "#2E7D32"},
+        {"id": None, "nombre": "Transporte", "monto": 180.5, "color": "#1565C0"},
+        {"id": None, "nombre": "Vivienda", "monto": 650.0, "color": "#00838F"},
+        {"id": None, "nombre": "Entretenimiento", "monto": 95.0, "color": "#F9A825"},
+        {"id": None, "nombre": "Servicios", "monto": 275.0, "color": "#EF6C00"},
+        {"id": None, "nombre": "Otros", "monto": 500.0, "color": "#6A1B9A"},
+    ],
+    "tiene_datos_demo": True,
+}
 
 
 def _build_dashboard_payload(user):
@@ -268,8 +284,29 @@ def dashboard_view(request):
         "gastos_por_categoria": payload["gastos_por_categoria"],
         "gastos_por_categoria_json": json.dumps(payload["gastos_por_categoria"]),
         "tiene_datos_demo": payload["tiene_datos_demo"],
+        "is_demo": False,
     }
     return render(request, "finanzas/dashboard.html", context)
+
+
+def demo_view(request):
+    """Dashboard de solo lectura con datos estáticos, sin requerir login."""
+    context = {
+        "ingresos_totales": DEMO_PAYLOAD["ingresos_totales"],
+        "gastos_totales": DEMO_PAYLOAD["gastos_totales"],
+        "balance": DEMO_PAYLOAD["balance"],
+        "transacciones": [],
+        "gastos_por_categoria": DEMO_PAYLOAD["gastos_por_categoria"],
+        "gastos_por_categoria_json": json.dumps(DEMO_PAYLOAD["gastos_por_categoria"]),
+        "tiene_datos_demo": True,
+        "is_demo": True,
+    }
+    return render(request, "finanzas/dashboard.html", context)
+
+
+def demo_data_api(request):
+    """API con payload estático para el polling del dashboard demo."""
+    return JsonResponse(DEMO_PAYLOAD)
 
 
 @login_required

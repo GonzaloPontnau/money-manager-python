@@ -2,6 +2,7 @@ from django.urls import path
 from finanzas.views import (
     login_view, register_view, logout_view,
     dashboard_view, dashboard_data_api, cargar_datos_demo,
+    demo_view, demo_data_api,
     lista_transacciones, nueva_transaccion, editar_transaccion,
     eliminar_transaccion, detalle_transaccion, filtrar_categorias,
     lista_transferencias, nueva_transferencia,
@@ -18,7 +19,9 @@ urlpatterns = [
 
     # Dashboard
     path('', dashboard_view, name='dashboard'),
+    path('demo/', demo_view, name='demo'),
     path('api/dashboard-data/', dashboard_data_api, name='dashboard_data_api'),
+    path('api/demo-data/', demo_data_api, name='demo_data_api'),
     path('dashboard/cargar-demo/', cargar_datos_demo, name='cargar_datos_demo'),
 
     # Transacciones
