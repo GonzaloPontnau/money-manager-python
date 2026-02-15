@@ -11,7 +11,6 @@ class FinanzasConfig(AppConfig):
 
     def ready(self):
         try:
-            # Importar signals de manera segura
-            import finanzas.signals
+            import finanzas.signals  # noqa: F401
         except ImportError:
             logger.warning("No se pudieron cargar las señales de la aplicación finanzas.")

@@ -1,0 +1,71 @@
+[
+  {
+    "model": "finanzas.categoria",
+    "pk": 1,
+    "fields": {
+      "nombre": "Salario",
+      "tipo": "ingreso",
+      "usuario": 1
+    }
+  },
+  {
+    "model": "finanzas.categoria",
+    "pk": 2,
+    "fields": {
+      "nombre": "Alquiler",
+      "tipo": "gasto",
+      "usuario": 1
+    }
+  },
+  {
+    "model": "finanzas.categoria",
+    "pk": 3,
+    "fields": {
+      "nombre": "Comida",
+      "tipo": "gasto",
+      "usuario": 1
+    }
+  },
+  {
+    "model": "finanzas.transaccion",
+    "pk": 1,
+    "fields": {
+      "usuario": 1,
+      "fecha": "2026-02-01T10:00:00Z",
+      "monto": "2000.00",
+      "tipo": "ingreso",
+      "categoria": 1,
+      "descripcion": "Pago mensual de salario",
+      "fecha_creacion": "2026-02-01T10:00:00Z",
+      "fecha_actualizacion": "2026-02-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "finanzas.transaccion",
+    "pk": 2,
+    "fields": {
+      "usuario": 1,
+      "fecha": "2026-02-02T12:00:00Z",
+      "monto": "800.00",
+      "tipo": "gasto",
+      "categoria": 2,
+      "descripcion": "Pago de alquiler mensual",
+      "fecha_creacion": "2026-02-02T12:00:00Z",
+      "fecha_actualizacion": "2026-02-02T12:00:00Z"
+    }
+  },
+  {
+    "model": "finanzas.transaccion",
+    "pk": 3,
+    "fields": {
+      "usuario": 1,
+      "fecha": "2026-02-03T14:00:00Z",
+      "monto": "300.00",
+      "tipo": "gasto",
+      "categoria": 3,
+      "descripcion": "Supermercado",
+      "fecha_creacion": "2026-02-03T14:00:00Z",
+      "fecha_actualizacion": "2026-02-03T14:00:00Z"
+    }
+  }
+]
