@@ -52,13 +52,7 @@
                         <i class="fas fa-exchange-alt"></i>
                         <span>Transferir</span>
                     </a>
-                    <form method="post" action="{% url 'finanzas:cargar_datos_demo' %}" class="demo-action-form">
-                        {% csrf_token %}
-                        <button type="submit" class="action-card demo">
-                            <i class="fas fa-flask"></i>
-                            <span>Try demo app test</span>
-                        </button>
-                    </form>
+
                 </div>
             </div>
         </div>
@@ -206,10 +200,12 @@ document.addEventListener('DOMContentLoaded', function() {
             plugins: {
                 legend: {
                     display: true,
-                    position: 'bottom',
+                    position: 'right',
                     labels: {
                         font: { family: 'Inter', size: 12 },
-                        color: '#8888A0'
+                        color: '#8888A0',
+                        boxWidth: 15,
+                        padding: 15
                     }
                 },
                 title: {
