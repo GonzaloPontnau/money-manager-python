@@ -1,153 +1,84 @@
-# API Reference — Money Manager
+# API Reference - Money Manager
 
-## Autenticación
+## Overview
 
-Todos los endpoints requieren que el usuario esté autenticado (session-based auth de Django). Las peticiones POST requieren el header `X-CSRFToken` con un token CSRF válido.
+- Base URL (versioned API): `/api/v1/`
+- API schema: `/api/schema/`
+- Swagger UI: `/api/docs/`
+- Authentication: JWT Bearer tokens (`Authorization: Bearer <access_token>`)
 
----
+## Auth
 
-## Chatbot API
+- `POST /api/v1/auth/login`
+  - Body: `{ "username": "...", "password": "..." }`
+  - Returns: `access`, `refresh`
+- `POST /api/v1/auth/refresh`
+  - Body: `{ "refresh": "..." }`
+  - Returns: new `access` (+ rotated `refresh` if enabled)
+- `POST /api/v1/auth/logout`
+  - Stateless logout endpoint (204)
 
-Base URL: `/chatbot/api/chat/`
+## Dashboard
 
-### Enviar Mensaje
+- `GET /api/v1/dashboard/summary`
+  - Returns:
+    - `ingresos_totales`
+    - `gastos_totales`
+    - `balance`
+    - `gastos_por_categoria[]`
+    - `tiene_datos_demo`
 
-```
-POST /chatbot/api/chat/send/
-```
+## Transactions
 
-Envía un mensaje al asistente FinBot y recibe la respuesta generada por IA.
+- `GET /api/v1/transactions`
+- `POST /api/v1/transactions`
+- `GET /api/v1/transactions/{id}`
+- `PATCH /api/v1/transactions/{id}`
+- `DELETE /api/v1/transactions/{id}`
 
-**Headers:**
+Notes:
+- All transaction resources are user-scoped.
+- Category must belong to the authenticated user.
+- Category type must match transaction type.
 
-```
-Content-Type: application/json
-X-CSRFToken: <csrf_token>
-```
+## Transfers
 
-**Request Body:**
+- `GET /api/v1/transfers`
+- `POST /api/v1/transfers`
+  - Body:
+    - `receptor_username` (string)
+    - `monto` (decimal > 0)
+    - `concepto` (string, optional)
+- `GET /api/v1/transfers/{uuid}`
+- `POST /api/v1/transfers/{uuid}/cancel`
 
-```json
-{
-  "message": "¿Cuál es mi balance actual?",
-  "session_id": "chat_1707937200_abc123xyz"
-}
-```
+Notes:
+- Self-transfer is blocked at form, view, and DB-constraint levels.
+- Transfer execution uses DB transaction and row locking for sender/receiver.
 
-| Campo        | Tipo   | Requerido | Descripción                        |
-| ------------ | ------ | --------- | ---------------------------------- |
-| `message`    | string | Sí        | Mensaje del usuario                |
-| `session_id` | string | Sí        | Identificador de la sesión de chat |
+## Chat
 
-**Response (200):**
+- `GET /api/v1/chat/sessions`
+- `POST /api/v1/chat/sessions`
+  - Creates a new `session_id`
+- `POST /api/v1/chat/messages`
+  - Body: `{ "session_id": "...", "message": "..." }`
+- `GET /api/v1/chat/sessions/{session_id}/messages`
 
-```json
-{
-  "response": "Tu balance actual es de $850.00...",
-  "is_followup": false,
-  "followup_options": null,
-  "session_id": "chat_1707937200_abc123xyz"
-}
-```
+## Health
 
-**Response con Follow-up (200):**
+- `GET /health/live/`
+- `GET /health/ready/`
 
-```json
-{
-  "response": "¿De qué período te gustaría saber tus gastos?",
-  "is_followup": true,
-  "followup_options": ["Este mes", "Último trimestre", "Este año", "Todo"],
-  "session_id": "chat_1707937200_abc123xyz"
-}
-```
+Readiness intentionally avoids leaking DB engine details or exception text.
 
-| Campo              | Tipo             | Descripción                            |
-| ------------------ | ---------------- | -------------------------------------- |
-| `response`         | string           | Respuesta del asistente                |
-| `is_followup`      | boolean          | `true` si es una pregunta de follow-up |
-| `followup_options` | string[] \| null | Opciones sugeridas para responder      |
-| `session_id`       | string           | ID de sesión (eco)                     |
+## Legacy Web Endpoints
 
-**Errores:**
-
-| Status | Descripción                                        |
-| ------ | -------------------------------------------------- |
-| `400`  | JSON inválido, mensaje vacío o session_id faltante |
-| `403`  | No autenticado                                     |
-
----
-
-### Obtener Historial
-
-```
-GET /chatbot/api/chat/history/?session_id=<session_id>
-```
-
-Recupera el historial de mensajes de una sesión de chat.
-
-**Query Params:**
-
-| Parámetro    | Tipo   | Requerido | Descripción                |
-| ------------ | ------ | --------- | -------------------------- |
-| `session_id` | string | Sí        | Identificador de la sesión |
-
-**Response (200):**
-
-```json
-{
-  "messages": [
-    {
-      "role": "user",
-      "content": "¿Cuánto gasté este mes?",
-      "is_followup": false,
-      "timestamp": "2026-02-14T17:30:00.000000+00:00"
-    },
-    {
-      "role": "assistant",
-      "content": "Este mes tus gastos ascienden a $450.00...",
-      "is_followup": false,
-      "timestamp": "2026-02-14T17:30:02.500000+00:00"
-    }
-  ],
-  "session_id": "chat_1707937200_abc123xyz"
-}
-```
-
----
-
-### Nueva Conversación
-
-```
-POST /chatbot/api/chat/new/
-```
-
-Placeholder para iniciar una nueva sesión de conversación. La generación de `session_id` se realiza del lado del cliente.
-
-**Response (200):**
-
-```json
-{
-  "status": "ok"
-}
-```
-
----
-
-## Finanzas — Rutas Web
-
-Las siguientes rutas corresponden a vistas web (renderizado HTML) y no son endpoints REST API.
-
-| Ruta                            | Vista                   | Descripción                                           |
-| ------------------------------- | ----------------------- | ----------------------------------------------------- |
-| `/`                             | `dashboard`             | Dashboard principal con resumen financiero y gráficos |
-| `/login/`                       | `login_view`            | Inicio de sesión                                      |
-| `/register/`                    | `register`              | Registro de nuevo usuario                             |
-| `/logout/`                      | `logout_view`           | Cerrar sesión                                         |
-| `/transacciones/`               | `lista_transacciones`   | Listado de transacciones con filtros                  |
-| `/transacciones/nueva/`         | `nueva_transaccion`     | Crear nueva transacción                               |
-| `/transacciones/<id>/`          | `detalle_transaccion`   | Detalle de una transacción                            |
-| `/transacciones/<id>/editar/`   | `editar_transaccion`    | Editar transacción existente                          |
-| `/transacciones/<id>/eliminar/` | `eliminar_transaccion`  | Confirmar y eliminar transacción                      |
-| `/transferencias/`              | `lista_transferencias`  | Listado de transferencias                             |
-| `/transferencias/nueva/`        | `nueva_transferencia`   | Crear nueva transferencia                             |
-| `/transferencias/<id>/`         | `detalle_transferencia` | Detalle de una transferencia                          |
+Legacy HTML routes remain active during migration:
+- `/`
+- `/login/`
+- `/register/`
+- `/logout/`
+- `/transacciones/*`
+- `/transferencias/*`
+- `/chatbot/api/chat/*`
