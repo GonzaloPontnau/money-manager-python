@@ -10,3 +10,11 @@ asgiref>=3.3.0
 pymysql
 requests>=2.31.0
 qdrant-client>=1.7.0
+djangorestframework>=3.15.0
+drf-spectacular>=0.27.0
+djangorestframework-simplejwt>=5.3.0
+ruff>=0.8.0
+black>=24.10.0
+isort>=5.13.0
+mypy>=1.13.0
+pre-commit>=4.0.0
