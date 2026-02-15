@@ -1,14 +1,14 @@
 ﻿[tool.black]
-line-length = 100
-target-version = ["py312"]
+"line-length" = 100
+"target-version" = ["py312"]
 
 [tool.isort]
 profile = "black"
 line_length = 100
 
 [tool.ruff]
-line-length = 100
-target-version = "py312"
+"line-length" = 100
+"target-version" = "py312"
 exclude = ["myenv", "venv", ".venv", "frontend-web/node_modules", "frontend-web/.next"]
 
 [tool.ruff.lint]
